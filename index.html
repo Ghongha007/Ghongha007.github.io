@@ -1,44 +1,311 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Portfolio</title>
-  <style>
-    body {
-       overflow: hidden; /* Prevent scrollbars */
-         }
-         canvas {
-            display: block; /* Make canvas fill the screen */
-         }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dipti Yadav | OSINT Journalist &amp; Open-Source Investigator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="top-nav">
+    <div class="logo-mark">
+      <span class="logo-dot"></span>
+      <span class="logo-text">OSINT JOURNO</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#profile">Profile</a>
+      <a href="#experience">Experience</a>
+      <a href="#cases-lock">Case files</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark or light mode">
+      <span class="theme-icon theme-icon--moon">●</span>
+      <span class="theme-icon theme-icon--sun">☼</span>
+    </button>
+  </header>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://threejs.org/examples/js/loaders/FontLoader.js"></script>
-    <script src="https://threejs.org/examples/jsm/loaders/FBXLoader.js"></script>
-    <script src="https://threejs.org/examples/js/geometries/TextGeometry.js"></script>
-    <script src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/postprocessing/BloomPass.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/postprocessing/CopyShader.js"></script>
-    <script src="https://unpkg.com/postprocessing@6.29.0/dist/postprocessing.js"></script>
+  <main>
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="eyebrow">Open-Source Investigation · Verification · Geospatial Analysis</p>
+        <h1>Dipti Yadav</h1>
+        <p class="role">OSINT Journalist | China · Defence · Human Rights · Privacy</p>
+        <p class="tagline">Tracking conflict, surveillance and information operations through open sources and satellite imagery.</p>
+        <div class="hero-meta">
+          <p class="current-role"><strong>Current:</strong> OSINT Journalist at <span class="highlight">OSINT JOURNO</span> (Jan 2025 – present)</p>
+          <a class="primary-link" href="https://www.osintjourno.com/" target="_blank" rel="noopener noreferrer">
+            OSINT JOURNO
+          </a>
+          <div class="org-social">
+            <span class="org-label">OSINT JOURNO:</span>
+            <a class="pill-link" href="https://youtube.com/@osint_journo" target="_blank" rel="noopener noreferrer">YouTube</a>
+            <a class="pill-link" href="https://www.instagram.com/osint_journo/" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a class="pill-link" href="https://medium.com/osint-journo" target="_blank" rel="noopener noreferrer">Medium</a>
+            <a class="pill-link" href="https://www.linkedin.com/company/osint-journo" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <div class="photo-frame">
+          <img src="diptiya.jpg" alt="Portrait of Dipti Yadav" loading="lazy" />
+        </div>
+        <div class="photo-caption">
+          <span class="dot dot--live"></span>
+          <span>Monitoring China, military build-up &amp; human rights from open sources.</span>
+        </div>
+      </div>
+    </section>
 
-    <!-- React and ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <section id="profile" class="panel panel--split">
+      <div>
+        <h2>Profile</h2>
+        <p>OSINT journalist specialising in China, defence, maritime security, human rights and digital privacy. Comfortable working with satellite imagery, flight and ship trackers, corporate records and social media data to unpack complex narratives.</p>
+        <p>Known for designing clear, visually rich explainer graphics that make technical and geopolitical investigations accessible to wider audiences.</p>
+      </div>
+      <div class="chip-grid">
+        <h3>Focus areas</h3>
+        <div class="chip-row">
+          <span class="chip">China &amp; Xinjiang</span>
+          <span class="chip">Defence &amp; military logistics</span>
+          <span class="chip">Maritime &amp; aviation OSINT</span>
+          <span class="chip">Human rights violations</span>
+          <span class="chip">Disinformation &amp; propaganda</span>
+          <span class="chip">Privacy &amp; data security</span>
+        </div>
+        <h3>Toolbox</h3>
+        <div class="chip-row">
+          <span class="chip">Geolocation &amp; satellite analysis</span>
+          <span class="chip">Video &amp; image verification</span>
+          <span class="chip">Network &amp; influence mapping</span>
+          <span class="chip">Data scraping &amp; visualization</span>
+          <span class="chip">Explainer graphic design</span>
+        </div>
+      </div>
+    </section>
 
-    <!-- React Three Fiber -->
-    <script src="https://unpkg.com/@react-three/fiber@8/dist/react-three-fiber.js"></script>
+    <section id="languages" class="panel panel--languages">
+      <div>
+        <h2>Languages</h2>
+        <p>I enjoy learning languages and working across information ecosystems.</p>
+        <ul class="language-list">
+          <li><strong>Hindi</strong> – Native</li>
+          <li><strong>English</strong> – Professional</li>
+          <li><strong>Tibetan</strong> – Certificate of proficiency (Nalanda University)</li>
+          <li><strong>Korean</strong> – Basic reading &amp; conversation</li>
+          <li><strong>Mandarin</strong> – Basic OSINT research &amp; communication</li>
+          <li><strong>Russian script</strong> – Reading familiarity for OSINT sources</li>
+        </ul>
+      </div>
+    </section>
 
-    <!-- Drei -->
-    <script src="https://unpkg.com/@react-three/drei@9/dist/drei.umd.js"></script>
-    <script src="https://unpkg.com/leva@0.9.31/dist/leva.umd.js"></script>
-    
-  <script src="cat.js"></script>
+    <section id="experience" class="panel panel--timeline">
+      <h2>Experience</h2>
+      <ol class="timeline">
+        <li class="timeline-item">
+          <div class="timeline-date">2025</div>
+          <div class="timeline-content">
+            <h3>SANS OSINT Summit 2025 – Speaker</h3>
+            <p>Delivered a talk on Chinese Social Media Intelligence, analysing how narratives, influencers and platforms shape China’s information environment.</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-date">Jan 2025 – Present</div>
+          <div class="timeline-content">
+            <h3>OSINT JOURNO – OSINT Journalist</h3>
+            <p>Independent OSINT outlet focusing on China, defence, surveillance infrastructure and privacy. Producing long-form explainers, multimedia investigations and video breakdowns for the OSINT JOURNO YouTube channel.</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-date">Oct 2023 – Mar 2024</div>
+          <div class="timeline-content">
+            <h3>Centre for Information Resilience – Network Member, Countering Disinformation</h3>
+            <p>Part of a global network of researchers tracking coordinated influence operations and online harms. Contributed to investigations into state-linked propaganda and information manipulation.</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-date">Aug 2022 – Nov 2023</div>
+          <div class="timeline-content">
+            <h3>India Today – OSINT Reporter</h3>
+            <p>Produced open-source investigations for a national newsroom, covering China, conflict zones and information operations. Reported on maritime and aerial engagements, and exposed human-rights and privacy risks using open data. Received the India Today “Chairman’s Award for Team Excellence 2023” for use of technology in journalism (Dec 2023).</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-date">May 2022 – Jul 2022</div>
+          <div class="timeline-content">
+            <h3>Hacktoria – Lead Editor (Volunteer)</h3>
+            <p>Led editing and wrote investigations on maritime OSINT and RFID tags. Maritime OSINT explainer for Hacktoria was later cited in <a href="https://gijn.org/resource/tracking-ships-at-sea/" target="_blank" rel="noopener noreferrer">GIJN’s ship-tracking resources</a>.</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-date">Mar 2022 – May 2022</div>
+          <div class="timeline-content">
+            <h3>DFRLab 360 / Digital Sherlock – Scholar</h3>
+            <p>Selected as a Digital Sherlock Scholar (Spring 2022 cohort), training in advanced OSINT methods, network mapping and verification for democracy and human-rights reporting.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="cases-lock" class="panel panel--lock">
+      <div class="lock-header">
+        <h2>Case files</h2>
+        <p>Restricted access console inspired by BBC Sherlock. Enter the passphrase to unlock active OSINT investigations.</p>
+      </div>
+      <div class="terminal-monitor">
+        <div class="monitor-frame">
+          <div class="monitor-topbar">
+            <span class="led led--red"></span>
+            <span class="led led--amber"></span>
+            <span class="led led--green"></span>
+            <span class="monitor-title">OSINT_JOURNO://SECURE_TERMINAL</span>
+          </div>
+          <div class="monitor-screen">
+            <div class="sherlocked">
+              <p class="sherlocked-prefix">I AM</p>
+              <div class="sherlocked-grid" aria-hidden="true">
+                <span class="letter-slot">_</span>
+                <span class="letter-slot">_</span>
+                <span class="letter-slot">_</span>
+                <span class="letter-slot">_</span>
+                <span class="locked-word">LOCKED</span>
+              </div>
+            </div>
+            <form id="unlock-form" class="unlock-form" autocomplete="off">
+              <label for="passcode">Enter 4-letter passphrase</label>
+              <div class="unlock-row">
+                <input type="password" id="passcode" name="passcode" maxlength="4" placeholder="Hint: BBC Sherlock" required />
+                <button type="submit">Unlock</button>
+              </div>
+              <p class="hint">I AM&nbsp;<span class="hint-underscore">_ _ _ _</span>&nbsp;LOCKED</p>
+            </form>
+            <p class="lock-status" id="lock-status">Terminal status: LOCKED</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="case-files" class="panel panel--cases is-locked">
+      <h2>Open-source case folders</h2>
+      <p class="cases-intro">Unlocked investigations across defence, maritime security, disinformation and digital rights. Each folder opens an external story or explainer.</p>
+      <div class="folder-grid">
+        <a class="folder" href="https://medium.com/osint-journo/wings-of-the-junta-satellite-clues-to-myanmars-military-backers-c526998a5444" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Wings of the junta</h3>
+            <p>Satellite clues to Myanmar’s military backers.</p>
+            <span class="folder-tag">Defence · Aviation OSINT</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://www.indiatoday.in/amp/world/story/china-propaganda-videos-uyghurs-youtube-2005919-2022-09-28" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Uyghurs propaganda by China</h3>
+            <p>Open-source analysis of scripted narratives about Uyghur life in Xinjiang.</p>
+            <span class="folder-tag">China · Human rights · Disinfo</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://medium.com/osint-journo/realcraft-portal-exposes-sensitive-fishermen-data-raising-major-privacy-and-security-alarms-55a81954d3d6" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Govt portal exposes fishermen data</h3>
+            <p>Investigation into a public portal leaking sensitive personal and location data.</p>
+            <span class="folder-tag">Privacy · Critical infrastructure</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://medium.com/osint-journo/maritime-osint-in-detail-part-ii-6b6c1a420129" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Maritime OSINT: In Detail</h3>
+            <p>Explainer on using ship trackers, port data and imagery for naval analysis.</p>
+            <span class="folder-tag">Maritime OSINT · Explainer</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://www.indiatoday.in/world/story/sea-assaults-israel-hamas-war-us-russia-china-support-warfare-2457977-2023-11-04" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Sea assaults in Israel-Hamas war</h3>
+            <p>Demystifying modern sea assaults and great-power interests in the conflict.</p>
+            <span class="folder-tag">Conflict · Naval warfare</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://youtu.be/sw4r4gz0DU0?si=G7uRPYkWzm3jPsYv" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Psychology of Future Warfare</h3>
+            <p>Video exploration of how technology, information and psychology shape future conflict.</p>
+            <span class="folder-tag">Future warfare · Video</span>
+          </div>
+        </a>
+
+        <a class="folder" href="https://www.indiatoday.in/india/story/graphic-guide-how-indias-proposed-law-stacks-up-against-data-privacy-in-us-eu-2419672-2023-08-11" target="_blank" rel="noopener noreferrer">
+          <div class="folder-icon">
+            <span class="folder-tab"></span>
+            <span class="folder-body"></span>
+          </div>
+          <div class="folder-text">
+            <h3>Graphic guide: Indias data protection bill</h3>
+            <p>Explainer graphic comparing Indias Digital Personal Data Protection Bill with US and EU privacy regimes.</p>
+            <span class="folder-tag">Data protection · Explainer</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <section id="contact" class="panel panel--contact">
+    <h2>Contact &amp; profiles</h2>
+    <div class="contact-grid">
+      <div class="contact-block">
+        <h3>Public profiles</h3>
+        <ul class="contact-list">
+          <li><a href="https://in.linkedin.com/in/dydiptiyadav07" target="_blank" rel="noopener noreferrer">LinkedIn – Dipti Yadav</a></li>
+          <li><a href="https://www.indiatoday.in/author/dipti-yadav" target="_blank" rel="noopener noreferrer">India Today author page</a></li>
+          <li><a href="https://x.com/Ghongha007" target="_blank" rel="noopener noreferrer">Twitter / X – @Ghongha007</a></li>
+        </ul>
+      </div>
+      <div class="contact-block">
+        <h3>Direct contact</h3>
+        <p class="contact-detail">Email: <a href="mailto:dydiptiyadav07@gmail.com">dydiptiyadav07@gmail.com</a></p>
+        <p class="contact-detail">LinkedIn: <a href="https://in.linkedin.com/in/dydiptiyadav07" target="_blank" rel="noopener noreferrer">dydiptiyadav07</a></p>
+        <p class="contact-detail">Twitter / X: <a href="https://x.com/Ghongha007" target="_blank" rel="noopener noreferrer">@Ghongha007</a></p>
+      </div>
+      <div class="contact-block">
+        <h3>Email for commissions</h3>
+        <p class="contact-detail">For editors &amp; producers: <a href="mailto:dydiptiyadav07@gmail.com">dydiptiyadav07@gmail.com</a></p>
+        <p class="contact-detail">Signal username: <span class="mono">@Ghongha007.15</span></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Dipti Yadav · OSINT journalist &amp; open-source investigator.</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
