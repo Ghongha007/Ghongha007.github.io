@@ -27,7 +27,7 @@ const panel = $('panel'); let current = null;
 function openClue(key) {
   const c = CLUES[key]; if (!c) return;
   if (c.locked && !unlocked) { showLock(key); return; }
-  current = key; $('panelKicker').textContent = `CLUE ${String(ORDER.indexOf(key) + 1).padStart(2, '0')} / ${ORDER.length}`;
+  chime(); current = key; $('panelKicker').textContent = `CLUE ${String(ORDER.indexOf(key) + 1).padStart(2, '0')} / ${ORDER.length}`;
   $('panelTitle').textContent = c.title; $('panelBody').innerHTML = c.html;
   panel.hidden = false; document.body.classList.add('reading'); requestAnimationFrame(() => panel.classList.add('open')); $('closeBtn').focus({ preventScroll: true });
   focusOn(key);
@@ -40,7 +40,8 @@ ORDER.forEach((k) => { const li = document.createElement('li'); const b = docume
 function toggleIndex(v) { const n = $('index'); const show = v ?? n.hidden; n.hidden = !show; $('listBtn').setAttribute('aria-expanded', String(show)); }
 $('listBtn').onclick = () => toggleIndex();
 $('palaceBtn').onclick = () => { palaceOn = !palaceOn; $('palaceBtn').setAttribute('aria-pressed', String(palaceOn)); $('palaceBtn').textContent = palaceOn ? 'Hide mind palace' : 'Show mind palace'; }; $('fallback').onclick = () => toggleIndex(true);
-$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); audio(); };
+$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); audio(); door(); startMusic(); };
+$('soundBtn').onclick = () => { setMusic(!musicOn); if (musicOn) startMusic(); };
 let pendingLock = null;
 function showLock(key) { pendingLock = key; $('lock').hidden = false; $('pass').value = ''; $('slots').textContent = '_ _ _ _'; $('lockMsg').textContent = 'Enter the 4-letter passphrase.'; setTimeout(() => $('pass').focus(), 50); }
 $('pass').addEventListener('input', (e) => { const v = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); e.target.value = v; $('slots').textContent = (v + '____').slice(0, 4).split('').join(' '); });
@@ -320,6 +321,35 @@ addEventListener('pointermove', (e) => {
 });
 let AC = null;
 function audio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
+// ---- sound: a clue chime, the door, and a slow mysterious score (all made in the browser; nothing to download)
+let master = null, musicGain = null, musicOn = true, musicStarted = false;
+function out() { if (!audio()) return null; if (!master) { master = AC.createGain(); master.gain.value = 0.9; master.connect(AC.destination); } return master; }
+function chime() {                    // soft two-note bell when a clue opens
+  const o = out(); if (!o) return; const now = AC.currentTime;
+  [[1318.5, 0], [987.8, 0.09]].forEach(([f, dt]) => { const osc = AC.createOscillator(), g = AC.createGain(); osc.type = 'sine'; osc.frequency.value = f; g.gain.setValueAtTime(0.0001, now + dt); g.gain.exponentialRampToValueAtTime(0.12, now + dt + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, now + dt + 0.9); osc.connect(g).connect(o); osc.start(now + dt); osc.stop(now + dt + 1); });
+}
+function door() {                     // the way in: a low thud and a rising shimmer
+  const o = out(); if (!o) return; const now = AC.currentTime;
+  const th = AC.createOscillator(), tg = AC.createGain(); th.frequency.setValueAtTime(90, now); th.frequency.exponentialRampToValueAtTime(45, now + 0.4); tg.gain.setValueAtTime(0.5, now); tg.gain.exponentialRampToValueAtTime(0.001, now + 0.6); th.connect(tg).connect(o); th.start(now); th.stop(now + 0.7);
+  [440, 523.25, 659.25].forEach((f, i) => { const osc = AC.createOscillator(), g = AC.createGain(); osc.type = 'triangle'; osc.frequency.value = f; const t0 = now + 0.15 + i * 0.12; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.07, t0 + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.6); osc.connect(g).connect(o); osc.start(t0); osc.stop(t0 + 1.7); });
+}
+function startMusic() {               // drone in D minor, slow bell phrases, rain on the glass, a crackling fire
+  const o = out(); if (!o || musicStarted) return; musicStarted = true; const now = AC.currentTime;
+  musicGain = AC.createGain(); musicGain.gain.setValueAtTime(0.0001, now); musicGain.gain.exponentialRampToValueAtTime(musicOn ? 0.55 : 0.0001, now + 4); musicGain.connect(o);
+  const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520; lp.Q.value = 0.7; lp.connect(musicGain);
+  const lfo = AC.createOscillator(), lfoG = AC.createGain(); lfo.frequency.value = 0.05; lfoG.gain.value = 180; lfo.connect(lfoG).connect(lp.frequency); lfo.start();
+  [[73.42, 'sawtooth', 0.05], [73.9, 'sawtooth', 0.05], [110, 'triangle', 0.06], [146.83, 'sine', 0.04]].forEach(([f, type, v]) => { const osc = AC.createOscillator(), g = AC.createGain(); osc.type = type; osc.frequency.value = f; g.gain.value = v; osc.connect(g).connect(lp); osc.start(); });
+  const noise = (secs) => { const b = AC.createBuffer(1, AC.sampleRate * secs, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return b; };
+  const rain = AC.createBufferSource(); rain.buffer = noise(4); rain.loop = true; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 0.6; const rg = AC.createGain(); rg.gain.value = 0.05; rain.connect(bp).connect(rg).connect(musicGain); rain.start();
+  const echo = AC.createDelay(2); echo.delayTime.value = 0.55; const fb = AC.createGain(); fb.gain.value = 0.38; echo.connect(fb).connect(echo); echo.connect(musicGain);
+  const scale = [293.66, 349.23, 392, 440, 466.16, 523.25, 587.33];             // D minor, with the dark B flat
+  (function phrase() { if (!musicStarted) return; const t0 = AC.currentTime + 0.1, n = 2 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < n; k++) { const f = scale[Math.floor(Math.random() * scale.length)] / (Math.random() < 0.3 ? 2 : 1), osc = AC.createOscillator(), g = AC.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = t0 + k * (0.6 + Math.random() * 0.5);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4); osc.connect(g); g.connect(musicGain); g.connect(echo); osc.start(t); osc.stop(t + 2.5); }
+    setTimeout(phrase, 5000 + Math.random() * 6000); })();
+  (function crackle() { if (!musicStarted) return; const t = AC.currentTime, src = AC.createBufferSource(); src.buffer = noise(0.03); const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500; const g = AC.createGain(); g.gain.setValueAtTime(0.05 + Math.random() * 0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03); src.connect(hp).connect(g).connect(musicGain); src.start(t); setTimeout(crackle, 80 + Math.random() * 700); })();
+}
+function setMusic(on) { musicOn = on; $('soundBtn').textContent = on ? '♪ Sound on' : '♪ Sound off'; $('soundBtn').setAttribute('aria-pressed', String(on)); if (master) master.gain.setTargetAtTime(on ? 0.9 : 0, AC.currentTime, 0.3); }
 function thunder() {
   if (!AC || AC.state !== 'running') return; const now = AC.currentTime + 0.25 + Math.random() * 0.6, dur = 3.5 + Math.random() * 2, len = Math.floor(AC.sampleRate * dur);
   const buf = AC.createBuffer(2, len, AC.sampleRate);
