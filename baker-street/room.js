@@ -40,7 +40,7 @@ ORDER.forEach((k) => { const li = document.createElement('li'); const b = docume
 function toggleIndex(v) { const n = $('index'); const show = v ?? n.hidden; n.hidden = !show; $('listBtn').setAttribute('aria-expanded', String(show)); }
 $('listBtn').onclick = () => toggleIndex();
 $('palaceBtn').onclick = () => { palaceOn = !palaceOn; $('palaceBtn').setAttribute('aria-pressed', String(palaceOn)); $('palaceBtn').textContent = palaceOn ? 'Hide mind palace' : 'Show mind palace'; }; $('fallback').onclick = () => toggleIndex(true);
-$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); };
+$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); audio(); };
 let pendingLock = null;
 function showLock(key) { pendingLock = key; $('lock').hidden = false; $('pass').value = ''; $('slots').textContent = '_ _ _ _'; $('lockMsg').textContent = 'Enter the 4-letter passphrase.'; setTimeout(() => $('pass').focus(), 50); }
 $('pass').addEventListener('input', (e) => { const v = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); e.target.value = v; $('slots').textContent = (v + '____').slice(0, 4).split('').join(' '); });
@@ -279,8 +279,11 @@ const dust = (() => { const n = 420, a = new Float32Array(n * 3); for (let i = 0
 try { await document.fonts.load('500 54px "IBM Plex Mono"'); } catch (e) {}
 const palace = new THREE.Group(); palace.visible = false; scene.add(palace); let palaceOn = true;
 ['GEOLOCATION', 'SHIP TRACKING', 'SATELLITE IMAGERY', 'SHELL COMPANIES', 'CHRONOLOCATION', 'FLIGHT TRACKING', 'DISINFORMATION', 'XINJIANG', 'SANCTIONS', 'C2PA', 'NETWORK MAPS', 'TIBETAN', '한국어', 'MCP AGENTS', 'VERIFICATION', 'DEFENCE'].forEach((w, i) => {
-  const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d'); g.font = '500 54px "IBM Plex Mono", monospace'; g.fillStyle = i % 3 ? '#ffffff' : '#e3b45a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(w, 256, 48);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.85 })); s.scale.set(1.1, 0.2, 1);
+  // faint, thin, bracketed, so they read as thoughts in the air, not as clickable clues
+  const font = '400 46px "IBM Plex Mono", monospace', label = '[ ' + w.toLowerCase() + ' ]'; const m = document.createElement('canvas').getContext('2d'); m.font = font;
+  const cw = Math.ceil(m.measureText(label).width) + 40, c = document.createElement('canvas'); c.width = cw; c.height = 84; const g = c.getContext('2d'); g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = i % 3 ? 'rgba(220,230,235,1)' : 'rgba(227,180,90,1)'; g.fillText(label, cw / 2, 42);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, depthTest: false, opacity: 0.32 })); s.scale.set(cw / 84 * 0.13, 0.13, 1); s.raycast = () => {};
   s.userData = { a: (i / 16) * Math.PI * 2, r: 1.6 + (i % 4) * 0.55, y: 1.2 + (i % 5) * 0.45, sp: 0.06 + (i % 3) * 0.03 }; palace.add(s); });
 // side table with the newspaper
 box(0.6, 0.05, 0.6, M({ color: 0x2b211a, roughness: 0.4 }), 0, 0.55, -0.9); box(0.06, 0.55, 0.06, M({ color: 0x2b211a }), 0, 0.27, -0.9);
@@ -316,8 +319,16 @@ addEventListener('pointermove', (e) => {
   if (k) { deduce.style.left = Math.min(e.clientX + 22, innerWidth - 300) + 'px'; deduce.style.top = (e.clientY - 10) + 'px'; }
 });
 let AC = null;
+function audio() { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } return AC; }
+function thunder() {
+  if (!AC || AC.state !== 'running') return; const now = AC.currentTime + 0.25 + Math.random() * 0.6, dur = 3.5 + Math.random() * 2, len = Math.floor(AC.sampleRate * dur);
+  const buf = AC.createBuffer(2, len, AC.sampleRate);
+  for (let ch = 0; ch < 2; ch++) { const d = buf.getChannelData(ch); let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; const env = Math.min(1, i / (AC.sampleRate * 0.04)) * Math.pow(1 - i / len, 2.2) * (0.6 + 0.4 * Math.sin(i / AC.sampleRate * (3 + ch) * Math.PI)); d[i] = last * 9 * env; } }
+  const src = AC.createBufferSource(); src.buffer = buf; const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420; const g = AC.createGain(); g.gain.value = 0.85;
+  src.connect(lp).connect(g).connect(AC.destination); src.start(now);
+}
 function bang() {
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  if (!audio()) return;
   const now = AC.currentTime, len = AC.sampleRate * 0.6, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
   for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
   const src = AC.createBufferSource(); src.buffer = buf; const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(9000, now); lp.frequency.exponentialRampToValueAtTime(700, now + 0.25);
@@ -342,7 +353,7 @@ function loop(now) {
   if (!started && !reduce) { camera.position.x += Math.sin(t * 0.25) * 0.4; camera.lookAt(cam.look); }
   fireLight.intensity = 5 + Math.sin(t * 9) * 0.6 + Math.sin(t * 23) * 0.4;
   winGroup.userData.rain.material.map.offset.y = (t * 0.35) % 1;
-  if (!reduce && Math.random() < 0.0025) flash = 1; flash *= 0.9; skyMat.color.setScalar(1 + flash * 2.5); coolLight.intensity = 3 + flash * 25;
+  if (!reduce && Math.random() < 0.0025) { flash = 1; if (started) thunder(); } flash *= 0.9; skyMat.color.setScalar(1 + flash * 2.5); coolLight.intensity = 3 + flash * 25;
   const dp = dust.geometry.attributes.position; for (let i = 0; i < dp.count; i++) { let y = dp.getY(i) + Math.sin(t * 0.3 + i * 1.7) * 0.0009 - 0.0004; if (y < 0) y = 3.8; dp.setY(i, y); dp.setX(i, dp.getX(i) + Math.sin(t * 0.21 + i) * 0.0009); dp.setZ(i, dp.getZ(i) + Math.cos(t * 0.17 + i * 0.5) * 0.0007); } dp.needsUpdate = true;
   palace.visible = palaceOn && started && !current;
   if (palace.visible) palace.children.forEach((sp) => { const u = sp.userData; u.a += u.sp * 0.016; sp.position.set(Math.cos(u.a) * u.r, u.y + Math.sin(t * 0.6 + u.r) * 0.08, -1.2 + Math.sin(u.a) * u.r * 0.7); }); fireU.uT.value = t; flames.forEach((f, i) => { f.scale.y = 0.92 + 0.12 * Math.sin(t * (3 + i * 0.7) + i); }); flames.bed.material.opacity = 0.75 + 0.2 * Math.sin(t * 3.1);
