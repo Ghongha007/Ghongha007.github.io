@@ -1,7 +1,7 @@
 // The study at 221B, built entirely in code (no model files): every clickable object opens one part of the portfolio.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { PERSON, CLUES } from './data.js';
+import { PERSON, CLUES } from './data.js?v=4';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('room');
