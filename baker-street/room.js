@@ -10,7 +10,7 @@ try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (
 const ORDER = ['violin', 'shelf', 'board', 'laptop', 'frame', 'skull', 'newspaper', 'window'];
 
 // ---------------------------------------------------------------- UI: intro, panel, index, lock
-const lines = ['You have come about a case. <b>Good.</b>', 'Observed: <b>four newsrooms</b>, <b>seven languages</b>, one obsession with open sources.', 'Deduction: she has already worked out <b>where your last photo was taken</b>.'];
+const lines = ['You have come about a case.'];
 (function typeIntro() {
   const el = $('typed'); let li = 0, ci = 0, out = '';
   const strip = (s) => s.replace(/<[^>]+>/g, '');
@@ -39,7 +39,7 @@ const idx = $('indexList');
 ORDER.forEach((k) => { const li = document.createElement('li'); const b = document.createElement('button'); b.textContent = CLUES[k].title; b.onclick = () => { toggleIndex(false); openClue(k); }; li.append(b); idx.append(li); });
 function toggleIndex(v) { const n = $('index'); const show = v ?? n.hidden; n.hidden = !show; $('listBtn').setAttribute('aria-expanded', String(show)); }
 $('listBtn').onclick = () => toggleIndex();
-$('palaceBtn').onclick = () => { palace.visible = !palace.visible; $('palaceBtn').setAttribute('aria-pressed', String(palace.visible)); $('palaceBtn').textContent = palace.visible ? 'Leave the mind palace' : 'Mind palace'; }; $('fallback').onclick = () => toggleIndex(true);
+$('palaceBtn').onclick = () => { palaceOn = !palaceOn; $('palaceBtn').setAttribute('aria-pressed', String(palaceOn)); $('palaceBtn').textContent = palaceOn ? 'Hide mind palace' : 'Show mind palace'; }; $('fallback').onclick = () => toggleIndex(true);
 $('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); };
 let pendingLock = null;
 function showLock(key) { pendingLock = key; $('lock').hidden = false; $('pass').value = ''; $('slots').textContent = '_ _ _ _'; $('lockMsg').textContent = 'Enter the 4-letter passphrase.'; setTimeout(() => $('pass').focus(), 50); }
@@ -154,7 +154,33 @@ const clue = (key, g, focus) => { g.userData.clue = key; g.userData.focus = focu
 const stone = M({ color: 0x3a3632, roughness: 0.9 });
 box(2.4, 1.3, 0.4, stone, 0, 0.65, -3.8); box(1.3, 0.9, 0.42, M({ color: 0x060606 }), 0, 0.45, -3.78); box(2.9, 0.12, 0.6, M({ color: 0x2b211a, roughness: 0.5 }), 0, 1.36, -3.72);
 const fireLight = new THREE.PointLight(0xff8a3a, 6, 7, 1.6); fireLight.position.set(0, 0.5, -3.2); fireLight.castShadow = true; scene.add(fireLight);
-const flames = []; for (let i = 0; i < 7; i++) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.09 + rnd() * 0.06, 0.35 + rnd() * 0.25, 8), new THREE.MeshBasicMaterial({ color: i % 2 ? 0xff7a1a : 0xffc04a, transparent: true, opacity: 0.85 })); f.position.set(-0.4 + i * 0.13, 0.25, -3.62); scene.add(f); flames.push(f); }
+// the fire: logs, a glowing ember bed, layered shader flames and rising sparks
+const flames = [];
+{ const logM = M({ color: 0x3a2414, roughness: 0.95 }); for (const [x, ry] of [[-0.18, 0.25], [0.15, -0.3], [0, 0.05]]) { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.7, 12), logM); l.rotation.set(0, ry, Math.PI / 2); l.position.set(x * 0.4, 0.09 + (x === 0 ? 0.08 : 0), -3.62); scene.add(l); }
+  const bed = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.3), new THREE.MeshBasicMaterial({ color: 0xff5a14, transparent: true, opacity: 0.9 })); bed.rotation.x = -Math.PI / 2; bed.position.set(0, 0.04, -3.6); scene.add(bed); flames.bed = bed; }
+const fireU = { uT: { value: 0 } };
+const fireMat = (seed, hot) => new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uT: fireU.uT, uS: { value: seed }, uHot: { value: hot } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `uniform float uT, uS, uHot; varying vec2 vUv;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+    float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * n(p); p *= 2.03; a *= 0.5; } return v; }
+    void main(){
+      vec2 uv = vUv; float y = uv.y;
+      float q = fbm(vec2(uv.x * 3.0 + uS, y * 2.2 - uT * 1.6 + uS));
+      float wob = (q - 0.5) * 0.35 * y;
+      float x = abs(uv.x - 0.5 + wob) * 2.0;
+      float shape = smoothstep(1.0, 0.0, x / (1.0 - y * 0.85 + 0.05)) * smoothstep(1.0, 0.25, y);
+      float tongues = fbm(vec2(uv.x * 5.0 - uS, y * 3.5 - uT * 2.4));
+      float f = clamp(shape * (0.55 + tongues * 0.9) - y * 0.35, 0.0, 1.0);
+      vec3 col = mix(vec3(0.55, 0.06, 0.0), vec3(1.0, 0.42, 0.05), smoothstep(0.05, 0.45, f));
+      col = mix(col, vec3(1.0, 0.86, 0.5), smoothstep(0.55, 0.95, f) * uHot);
+      gl_FragColor = vec4(col * f * 1.6, f);
+    }` });
+for (let i = 0; i < 6; i++) { const w = 0.32 + rnd() * 0.22, hgt = 0.55 + rnd() * 0.35; const f = new THREE.Mesh(new THREE.PlaneGeometry(w, hgt), fireMat(i * 3.7, i < 3 ? 1 : 0.6)); f.position.set(-0.3 + i * 0.12, 0.07 + hgt / 2, -3.58 + (i % 2) * 0.03); scene.add(f); flames.push(f); }
+const sparks = (() => { const n = 40, a = new Float32Array(n * 3), life = new Float32Array(n); for (let i = 0; i < n; i++) { a.set([(rnd() - .5) * 0.6, 0.1 + rnd() * 0.8, -3.6], i * 3); life[i] = rnd(); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(a, 3)); const p = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffb347, size: 0.02, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false })); p.userData.life = life; scene.add(p); return p; })();
+
 // the skull: cranium, cheekbones, sockets, nose, teeth, and the headphones it wears
 { const g = new THREE.Group(); const bone = M({ color: 0xe6dcc2, roughness: 0.55 }); const dark = M({ color: 0x0a0806, roughness: 1 });
   const cr = new THREE.Mesh(new THREE.SphereGeometry(0.17, 40, 30), bone); cr.scale.set(0.92, 0.95, 1.12); cr.position.set(0, 0.24, -0.03); g.add(cr);
@@ -246,10 +272,12 @@ const varnish = tex(256, 512, (g, w, h) => { const gr = g.createRadialGradient(w
   g.rotation.set(-Math.PI / 2 + 0.25, 0, 0.5); g.position.set(-1.3, 0.62, -1.1); g.scale.setScalar(0.95);
   clue('violin', g, { pos: [-0.75, 1.35, 0.1], look: [-1.3, 0.62, -1.1] }); }
 // dust drifting through the lamplight
-const dust = (() => { const n = 260, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([(rnd() - 0.5) * 9, rnd() * 3.8, -3.8 + rnd() * 6], i * 3); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(a, 3));
-  const p = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffe2b0, size: 0.018, transparent: true, opacity: 0.55, depthWrite: false })); scene.add(p); return p; })();
+const dustTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,236,180,1)'); gr.addColorStop(0.35, 'rgba(255,205,110,.55)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); return t; })();
+const dust = (() => { const n = 420, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([(rnd() - 0.5) * 9, rnd() * 3.8, -3.8 + rnd() * 6.5], i * 3); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(a, 3));
+  const p = new THREE.Points(g, new THREE.PointsMaterial({ map: dustTex, color: 0xffcf6e, size: 0.035, sizeAttenuation: true, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(p); return p; })();
 // mind palace: the things she knows, floating in the room (toggle)
-const palace = new THREE.Group(); palace.visible = false; scene.add(palace);
+try { await document.fonts.load('500 54px "IBM Plex Mono"'); } catch (e) {}
+const palace = new THREE.Group(); palace.visible = false; scene.add(palace); let palaceOn = true;
 ['GEOLOCATION', 'SHIP TRACKING', 'SATELLITE IMAGERY', 'SHELL COMPANIES', 'CHRONOLOCATION', 'FLIGHT TRACKING', 'DISINFORMATION', 'XINJIANG', 'SANCTIONS', 'C2PA', 'NETWORK MAPS', 'TIBETAN', '한국어', 'MCP AGENTS', 'VERIFICATION', 'DEFENCE'].forEach((w, i) => {
   const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d'); g.font = '500 54px "IBM Plex Mono", monospace'; g.fillStyle = i % 3 ? '#ffffff' : '#e3b45a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(w, 256, 48);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.85 })); s.scale.set(1.1, 0.2, 1);
@@ -287,10 +315,19 @@ addEventListener('pointermove', (e) => {
   if (k !== hovered) { if (hovered) setGlow(hovered, false); hovered = k; if (k) { setGlow(k, true); deduce.innerHTML = CLUES[k].deduce.map((s, i) => `<span style="animation-delay:${i * 0.12}s">${s}</span>`).join(''); } deduce.classList.toggle('on', !!k); }
   if (k) { deduce.style.left = Math.min(e.clientX + 22, innerWidth - 300) + 'px'; deduce.style.top = (e.clientY - 10) + 'px'; }
 });
+let AC = null;
+function bang() {
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  const now = AC.currentTime, len = AC.sampleRate * 0.6, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+  const src = AC.createBufferSource(); src.buffer = buf; const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(9000, now); lp.frequency.exponentialRampToValueAtTime(700, now + 0.25);
+  const g = AC.createGain(); g.gain.setValueAtTime(0.9, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.55); src.connect(lp).connect(g).connect(AC.destination); src.start(now);
+  const o = AC.createOscillator(), og = AC.createGain(); o.frequency.setValueAtTime(140, now); o.frequency.exponentialRampToValueAtTime(40, now + 0.18); og.gain.setValueAtTime(0.8, now); og.gain.exponentialRampToValueAtTime(0.001, now + 0.25); o.connect(og).connect(AC.destination); o.start(now); o.stop(now + 0.3);
+}
 function shootSmiley() {                      // the easter egg: one more bullet hole in the smiley, and the room flinches
   ray.setFromCamera(mouse, camera); const h = ray.intersectObject(smiley)[0]; if (!h) return false;
   const c = smileyTex.image.getContext('2d'), x = h.uv.x * 512, y = (1 - h.uv.y) * 512; c.fillStyle = '#0b0b0b'; c.beginPath(); c.arc(x, y, 10, 0, 7); c.fill(); c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = 2; for (let k = 0; k < 6; k++) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + (Math.random() - .5) * 46, y + (Math.random() - .5) * 46); c.stroke(); }
-  smileyTex.needsUpdate = true; flash = 0.6; shake = 0.25; deduce.innerHTML = '<span>Bored.</span>'; deduce.classList.add('on'); setTimeout(() => deduce.classList.remove('on'), 1200); return true;
+  smileyTex.needsUpdate = true; bang(); flash = 0.6; shake = 0.25; deduce.innerHTML = '<span>Bored.</span>'; deduce.classList.add('on'); setTimeout(() => deduce.classList.remove('on'), 1200); return true;
 }
 let shake = 0;
 canvas.addEventListener('click', () => { if (!started) return; if (!current && shootSmiley()) return; const k = pick(); if (k) { deduce.classList.remove('on'); openClue(k); } else if (current) closeClue(); });
@@ -306,11 +343,14 @@ function loop(now) {
   fireLight.intensity = 5 + Math.sin(t * 9) * 0.6 + Math.sin(t * 23) * 0.4;
   winGroup.userData.rain.material.map.offset.y = (t * 0.35) % 1;
   if (!reduce && Math.random() < 0.0025) flash = 1; flash *= 0.9; skyMat.color.setScalar(1 + flash * 2.5); coolLight.intensity = 3 + flash * 25;
-  const dp = dust.geometry.attributes.position; for (let i = 0; i < dp.count; i++) { let y = dp.getY(i) - 0.0015; if (y < 0) y = 3.8; dp.setY(i, y); dp.setX(i, dp.getX(i) + Math.sin(t + i) * 0.0008); } dp.needsUpdate = true;
-  if (palace.visible) palace.children.forEach((sp) => { const u = sp.userData; u.a += u.sp * 0.016; sp.position.set(Math.cos(u.a) * u.r, u.y + Math.sin(t * 0.6 + u.r) * 0.08, -1.2 + Math.sin(u.a) * u.r * 0.7); }); flames.forEach((f, i) => { f.scale.y = 0.8 + 0.3 * Math.sin(t * (6 + i) + i); });
+  const dp = dust.geometry.attributes.position; for (let i = 0; i < dp.count; i++) { let y = dp.getY(i) + Math.sin(t * 0.3 + i * 1.7) * 0.0009 - 0.0004; if (y < 0) y = 3.8; dp.setY(i, y); dp.setX(i, dp.getX(i) + Math.sin(t * 0.21 + i) * 0.0009); dp.setZ(i, dp.getZ(i) + Math.cos(t * 0.17 + i * 0.5) * 0.0007); } dp.needsUpdate = true;
+  palace.visible = palaceOn && started && !current;
+  if (palace.visible) palace.children.forEach((sp) => { const u = sp.userData; u.a += u.sp * 0.016; sp.position.set(Math.cos(u.a) * u.r, u.y + Math.sin(t * 0.6 + u.r) * 0.08, -1.2 + Math.sin(u.a) * u.r * 0.7); }); fireU.uT.value = t; flames.forEach((f, i) => { f.scale.y = 0.92 + 0.12 * Math.sin(t * (3 + i * 0.7) + i); }); flames.bed.material.opacity = 0.75 + 0.2 * Math.sin(t * 3.1);
+  { const sp = sparks.geometry.attributes.position, L = sparks.userData.life; for (let i = 0; i < sp.count; i++) { L[i] += 0.008 + (i % 5) * 0.002; if (L[i] > 1) { L[i] = 0; sp.setXYZ(i, (Math.random() - .5) * 0.5, 0.15, -3.6 + (Math.random() - .5) * 0.1); } else sp.setXYZ(i, sp.getX(i) + Math.sin(t * 4 + i) * 0.002, 0.15 + L[i] * 1.3, sp.getZ(i)); } sp.needsUpdate = true; }
   renderer.render(scene, camera); requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 // deep links: ?enter skips the title card; ?clue=<key> opens one object (handy for sharing a single section)
 { const q = new URLSearchParams(location.search); if (q.has('enter') || q.has('clue')) { $('intro').style.display = 'none'; started = true; document.body.classList.add('entered'); cam.pos.copy(goal.pos); }
-  if (q.has('still')) document.documentElement.classList.add('still'); if (q.get('clue') && CLUES[q.get('clue')]) { openClue(q.get('clue')); if (q.has('still')) { cam.pos.copy(goal.pos); cam.look.copy(goal.look); } } }
+  if (q.has('still')) document.documentElement.classList.add('still');
+  if (q.get('clue') && CLUES[q.get('clue')]) { openClue(q.get('clue')); if (q.has('still')) { cam.pos.copy(goal.pos); cam.look.copy(goal.look); } } }
