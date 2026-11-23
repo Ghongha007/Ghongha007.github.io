@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dipti Yadav · The Mind Palace</title>
+<meta name="description" content="Dipti Yadav, OSINT journalist and open-source investigator. Step into the study: every object is a clue.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="room" aria-hidden="true"></canvas>
+<div id="deduce" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="../">← classic portfolio</a>
+  <div class="hud mono"><span id="clock">51.5237° N, 0.1585° W</span> · <span>221B</span></div>
+  <button id="listBtn" class="ghost" aria-controls="index" aria-expanded="false">Case index</button>
+</header>
+
+<section id="intro" aria-labelledby="introName">
+  <p class="mono kicker">THE MIND PALACE OF</p>
+  <h1 id="introName">Dipti Yadav</h1>
+  <p class="sub">OSINT Journalist &amp; Open-Source Investigator</p>
+  <p class="typed mono" id="typed"></p>
+  <button id="enter" class="enter">Step inside</button>
+  <p class="hint mono">Every object in the room is a clue. Click one.</p>
+</section>
+
+<nav id="index" class="index" aria-label="Case index" hidden>
+  <p class="mono kicker">CASE INDEX</p>
+  <ol id="indexList"></ol>
+</nav>
+
+<aside id="panel" class="panel" role="dialog" aria-modal="false" aria-labelledby="panelTitle" hidden>
+  <button class="close" id="closeBtn" aria-label="Close">×</button>
+  <p class="mono kicker" id="panelKicker">CLUE</p>
+  <h2 id="panelTitle"></h2>
+  <div id="panelBody"></div>
+</aside>
+
+<div id="lock" class="lock" hidden>
+  <p class="mono kicker">OSINT_JOURNO://SECURE_TERMINAL</p>
+  <p class="lockline mono">I AM <span id="slots">_ _ _ _</span> LOCKED</p>
+  <form id="lockForm"><input id="pass" maxlength="4" autocomplete="off" spellcheck="false" aria-label="Four-letter passphrase" placeholder="····"><button>Unlock</button></form>
+  <p class="mono small" id="lockMsg">Enter the 4-letter passphrase.</p>
+</div>
+
+<p class="foot mono">Hover to observe · click to deduce · <span id="fallback">no 3D? open the case index</span></p>
+<script type="module" src="room.js"></script>
+</body>
+</html>
