@@ -1,5 +1,6 @@
 // The study at 221B, built entirely in code (no model files): every clickable object opens one part of the portfolio.
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { PERSON, CLUES } from './data.js';
 
 const $ = (id) => document.getElementById(id);
@@ -9,7 +10,7 @@ try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (
 const ORDER = ['violin', 'shelf', 'board', 'laptop', 'frame', 'skull', 'newspaper', 'window'];
 
 // ---------------------------------------------------------------- UI: intro, panel, index, lock
-const lines = ['Subject: <b>Dipti Yadav</b>.', 'Occupation: <b>OSINT journalist</b>. Satellites, ships, shell companies.', 'Status: <b>investigating</b>. Always.'];
+const lines = ['You have come about a case. <b>Good.</b>', 'Observed: <b>four newsrooms</b>, <b>seven languages</b>, one obsession with open sources.', 'Deduction: she has already worked out <b>where your last photo was taken</b>.'];
 (function typeIntro() {
   const el = $('typed'); let li = 0, ci = 0, out = '';
   const strip = (s) => s.replace(/<[^>]+>/g, '');
@@ -37,8 +38,9 @@ addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$('lock').hi
 const idx = $('indexList');
 ORDER.forEach((k) => { const li = document.createElement('li'); const b = document.createElement('button'); b.textContent = CLUES[k].title; b.onclick = () => { toggleIndex(false); openClue(k); }; li.append(b); idx.append(li); });
 function toggleIndex(v) { const n = $('index'); const show = v ?? n.hidden; n.hidden = !show; $('listBtn').setAttribute('aria-expanded', String(show)); }
-$('listBtn').onclick = () => toggleIndex(); $('fallback').onclick = () => toggleIndex(true);
-$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; };
+$('listBtn').onclick = () => toggleIndex();
+$('palaceBtn').onclick = () => { palace.visible = !palace.visible; $('palaceBtn').setAttribute('aria-pressed', String(palace.visible)); $('palaceBtn').textContent = palace.visible ? 'Leave the mind palace' : 'Mind palace'; }; $('fallback').onclick = () => toggleIndex(true);
+$('enter').onclick = () => { $('intro').classList.add('gone'); started = true; document.body.classList.add('entered'); };
 let pendingLock = null;
 function showLock(key) { pendingLock = key; $('lock').hidden = false; $('pass').value = ''; $('slots').textContent = '_ _ _ _'; $('lockMsg').textContent = 'Enter the 4-letter passphrase.'; setTimeout(() => $('pass').focus(), 50); }
 $('pass').addEventListener('input', (e) => { const v = e.target.value.toUpperCase().replace(/[^A-Z]/g, ''); e.target.value = v; $('slots').textContent = (v + '____').slice(0, 4).split('').join(' '); });
@@ -153,47 +155,105 @@ const stone = M({ color: 0x3a3632, roughness: 0.9 });
 box(2.4, 1.3, 0.4, stone, 0, 0.65, -3.8); box(1.3, 0.9, 0.42, M({ color: 0x060606 }), 0, 0.45, -3.78); box(2.9, 0.12, 0.6, M({ color: 0x2b211a, roughness: 0.5 }), 0, 1.36, -3.72);
 const fireLight = new THREE.PointLight(0xff8a3a, 6, 7, 1.6); fireLight.position.set(0, 0.5, -3.2); fireLight.castShadow = true; scene.add(fireLight);
 const flames = []; for (let i = 0; i < 7; i++) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.09 + rnd() * 0.06, 0.35 + rnd() * 0.25, 8), new THREE.MeshBasicMaterial({ color: i % 2 ? 0xff7a1a : 0xffc04a, transparent: true, opacity: 0.85 })); f.position.set(-0.4 + i * 0.13, 0.25, -3.62); scene.add(f); flames.push(f); }
-{ const g = new THREE.Group(); const bone = M({ color: 0xe9e0c8, roughness: 0.55 });
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 18), bone); head.scale.set(1, 0.95, 1.15); head.position.y = 0.2; g.add(head);
-  const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.16), bone); jaw.position.set(0, 0.06, 0.07); g.add(jaw);
-  for (const sx of [-0.06, 0.06]) { const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), M({ color: 0x050505 })); eye.position.set(sx, 0.2, 0.17); g.add(eye); }
-  const band = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.02, 8, 30, Math.PI), M({ color: 0x111111, roughness: 0.4 })); band.position.y = 0.2; g.add(band);
-  for (const sx of [-0.2, 0.2]) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.06, 20), M({ color: 0x151515, roughness: 0.4 })); cup.rotation.z = Math.PI / 2; cup.position.set(sx, 0.2, 0); g.add(cup); }
-  g.position.set(-0.75, 1.42, -3.65); g.rotation.y = 0.35; clue('skull', g, { pos: [-0.5, 1.75, -2.4], look: [-0.75, 1.55, -3.65] }); }
-{ const clock = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 28), M({ color: 0xd8cfb8 })); clock.rotation.x = Math.PI / 2; clock.position.set(0.7, 1.6, -3.66); scene.add(clock);
-  box(0.4, 0.5, 0.12, M({ color: 0x2b211a }), 0.7, 1.62, -3.72); }
-// the smiley on the wall, bullet holes and all
-{ const s = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshStandardMaterial({ map: smileyTex, transparent: true, roughness: 0.9 })); s.position.set(2.75, 2.25, -RD / 2 + 0.01); scene.add(s); }
-// the framed certificate
-{ const g = new THREE.Group(); box(1.0, 0.78, 0.05, M({ color: 0x3b2a12, roughness: 0.4, metalness: 0.3 }), 0, 0, 0, g);
-  const p = new THREE.Mesh(new THREE.PlaneGeometry(0.86, 0.64), M({ map: certTex })); p.position.z = 0.03; g.add(p); g.position.set(-2.7, 2.4, -RD / 2 + 0.04); clue('frame', g, { pos: [-2.6, 2.3, -2.2], look: [-2.7, 2.35, -4] }); }
+// the skull: cranium, cheekbones, sockets, nose, teeth, and the headphones it wears
+{ const g = new THREE.Group(); const bone = M({ color: 0xe6dcc2, roughness: 0.55 }); const dark = M({ color: 0x0a0806, roughness: 1 });
+  const cr = new THREE.Mesh(new THREE.SphereGeometry(0.17, 40, 30), bone); cr.scale.set(0.92, 0.95, 1.12); cr.position.set(0, 0.24, -0.03); g.add(cr);
+  const face = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 24), bone); face.scale.set(1.05, 0.95, 0.8); face.position.set(0, 0.17, 0.09); g.add(face);
+  for (const sx of [-1, 1]) {
+    const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), bone); cheek.position.set(sx * 0.085, 0.14, 0.12); g.add(cheek);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.042, 20, 14), dark); eye.scale.set(1, 0.9, 0.6); eye.position.set(sx * 0.055, 0.2, 0.175); g.add(eye);
+  }
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.05, 3), dark); nose.rotation.x = Math.PI; nose.position.set(0, 0.135, 0.2); g.add(nose);
+  const jaw = new THREE.Mesh(new RoundedBoxGeometry(0.15, 0.06, 0.12, 3, 0.02), bone); jaw.position.set(0, 0.07, 0.1); g.add(jaw);
+  for (let i = 0; i < 8; i++) { const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.022, 0.01), M({ color: 0xf4efdf, roughness: 0.4 })); const a = (i - 3.5) * 0.17; tooth.position.set(Math.sin(a) * 0.065, 0.105, 0.105 + Math.cos(a) * 0.055); tooth.rotation.y = a; g.add(tooth); }
+  const leather = M({ color: 0x141414, roughness: 0.35, metalness: 0.2 });
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.014, 10, 40, Math.PI), leather); band.position.set(0, 0.24, -0.02); g.add(band);
+  for (const sx of [-1, 1]) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.05, 32), leather); cup.rotation.z = Math.PI / 2; cup.position.set(sx * 0.19, 0.22, -0.02); g.add(cup);
+    const pad = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.016, 10, 24), M({ color: 0x2a2a2a, roughness: 0.9 })); pad.rotation.y = Math.PI / 2; pad.position.set(sx * 0.165, 0.22, -0.02); g.add(pad); }
+  g.position.set(-0.75, 1.42, -3.6); g.rotation.y = 0.35; clue('skull', g, { pos: [-0.45, 1.75, -2.5], look: [-0.75, 1.6, -3.6] }); }
+// mantel clock showing London time
+const clockTex = document.createElement('canvas'); clockTex.width = clockTex.height = 256; const clockT = new THREE.CanvasTexture(clockTex); clockT.colorSpace = THREE.SRGBColorSpace;
+function drawClock() { const g = clockTex.getContext('2d'), now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/London' })); g.fillStyle = '#efe6cf'; g.fillRect(0, 0, 256, 256); g.strokeStyle = '#3a2a18'; g.lineWidth = 6; g.beginPath(); g.arc(128, 128, 118, 0, 7); g.stroke();
+  g.fillStyle = '#3a2a18'; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; g.fillRect(128 + Math.sin(a) * 100 - 3, 128 - Math.cos(a) * 100 - 3, 6, 6); }
+  const hand = (a, l, w) => { g.lineWidth = w; g.beginPath(); g.moveTo(128, 128); g.lineTo(128 + Math.sin(a) * l, 128 - Math.cos(a) * l); g.stroke(); };
+  hand((now.getHours() % 12 + now.getMinutes() / 60) / 12 * Math.PI * 2, 58, 8); hand(now.getMinutes() / 60 * Math.PI * 2, 88, 5); g.strokeStyle = '#a32'; hand(now.getSeconds() / 60 * Math.PI * 2, 96, 2); clockT.needsUpdate = true; }
+drawClock(); setInterval(drawClock, 1000);
+{ const body = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.5, 0.14, 4, 0.05), M({ color: 0x2b1a0e, roughness: 0.35 })); body.position.set(0.72, 1.66, -3.7); scene.add(body);
+  const face = new THREE.Mesh(new THREE.CircleGeometry(0.15, 40), M({ map: clockT, roughness: 0.4 })); face.position.set(0.72, 1.7, -3.62); scene.add(face); }
+// the smiley on the wall, bullet holes and all: click it and it takes another shot
+const smiley = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshStandardMaterial({ map: smileyTex, transparent: true, roughness: 0.9 })); smiley.position.set(2.75, 2.25, -RD / 2 + 0.01); scene.add(smiley);
+smiley.userData.egg = true;
+// the window, on the back wall: London at night, rain on the glass, the odd flash of lightning
+const rainC = document.createElement('canvas'); rainC.width = 256; rainC.height = 512; { const g = rainC.getContext('2d'); g.clearRect(0, 0, 256, 512); for (let i = 0; i < 140; i++) { const x = rnd() * 256, y = rnd() * 512, l = 10 + rnd() * 26; g.strokeStyle = `rgba(200,220,255,${0.15 + rnd() * 0.3})`; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y); g.lineTo(x - 2, y + l); g.stroke(); } for (let i = 0; i < 40; i++) { g.fillStyle = 'rgba(220,235,255,.35)'; g.beginPath(); g.arc(rnd() * 256, rnd() * 512, 1.5 + rnd() * 2, 0, 7); g.fill(); } }
+const rainT = new THREE.CanvasTexture(rainC); rainT.wrapS = rainT.wrapT = THREE.RepeatWrapping;
+let flash = 0; const skyMat = new THREE.MeshBasicMaterial({ map: nightTex, color: 0xffffff });
+{ const g = new THREE.Group(); g.add(new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.9), skyMat));
+  const rain = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.9), new THREE.MeshBasicMaterial({ map: rainT, transparent: true, depthWrite: false })); rain.position.z = 0.01; g.add(rain); g.userData.rain = rain;
+  const fr = M({ color: 0xd9d2c0, roughness: 0.5 }); box(1.66, 0.08, 0.1, fr, 0, 0.99, 0.04, g); box(1.66, 0.08, 0.1, fr, 0, -0.99, 0.04, g); box(0.08, 2.06, 0.1, fr, -0.79, 0, 0.04, g); box(0.08, 2.06, 0.1, fr, 0.79, 0, 0.04, g); box(1.6, 0.05, 0.06, fr, 0, 0.1, 0.04, g); box(0.05, 1.9, 0.06, fr, 0, 0, 0.04, g);
+  box(1.9, 0.07, 0.24, fr, 0, -1.05, 0.12, g);
+  const cur = M({ color: 0x4a1418, roughness: 1 }); for (const sx of [-1, 1]) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 2.6, 16, 1, true, 0, Math.PI), cur); c.rotation.y = Math.PI; c.position.set(sx * 1.02, -0.05, 0.12); g.add(c); }
+  box(2.6, 0.05, 0.05, M({ color: 0x8a6a3a, metalness: 0.6, roughness: 0.3 }), 0, 1.25, 0.16, g);
+  g.position.set(-2.55, 2.15, -RD / 2 + 0.03); clue('window', g, { pos: [-2.3, 2.1, -1.2], look: [-2.55, 2.1, -4] }); var winGroup = g;
+  const cool = new THREE.SpotLight(0x7ea6ff, 3, 9, 0.7, 0.6); cool.position.set(-2.55, 2.2, -3.6); cool.target.position.set(-1, 0, 0); scene.add(cool, cool.target); var coolLight = cool; }
+// the framed certificate, on the right wall by the case board
+{ const g = new THREE.Group(); box(0.86, 0.66, 0.05, M({ color: 0x3b2a12, roughness: 0.3, metalness: 0.4 }), 0, 0, 0, g);
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(0.74, 0.54), M({ map: certTex })); p.position.z = 0.03; g.add(p); g.rotation.y = -Math.PI / 2; g.position.set(RW / 2 - 0.04, 2.25, -3.35); clue('frame', g, { pos: [3.0, 2.2, -3.0], look: [5, 2.2, -3.35] }); }
 // bookshelf on the left wall
 { const g = new THREE.Group(); box(0.5, 2.8, 2.2, M({ color: 0x2a1c12, roughness: 0.7 }), 0, 1.4, 0, g);
   const books = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.5), M({ map: bookTex })); books.rotation.y = Math.PI / 2; books.position.set(0.26, 1.4, 0); g.add(books);
-  g.position.set(-RW / 2 + 0.26, 0, -2.3); clue('shelf', g, { pos: [-2.6, 1.7, -1.8], look: [-4.7, 1.5, -2.3] }); }
-// window on the left wall, London at night
-{ const g = new THREE.Group(); const view = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.9), new THREE.MeshBasicMaterial({ map: nightTex })); g.add(view);
-  const fr = M({ color: 0xd9d2c0, roughness: 0.5 }); box(1.62, 0.07, 0.08, fr, 0, 0.98, 0.03, g); box(1.62, 0.07, 0.08, fr, 0, -0.98, 0.03, g); box(0.07, 2.0, 0.08, fr, -0.78, 0, 0.03, g); box(0.07, 2.0, 0.08, fr, 0.78, 0, 0.03, g); box(1.6, 0.05, 0.06, fr, 0, 0.1, 0.03, g); box(0.05, 1.9, 0.06, fr, 0, 0, 0.03, g);
-  const cur = M({ color: 0x4a1418, roughness: 1 }); box(0.45, 2.5, 0.08, cur, -1.0, 0, 0.08, g); box(0.45, 2.5, 0.08, cur, 1.0, 0, 0.08, g);
-  g.rotation.y = Math.PI / 2; g.position.set(-RW / 2 + 0.02, 2.1, 0.9); clue('window', g, { pos: [-2.2, 2.0, 0.9], look: [-5, 2.0, 0.9] });
-  const cool = new THREE.SpotLight(0x7ea6ff, 3, 9, 0.6, 0.6); cool.position.set(-4.8, 2.3, 0.9); cool.target.position.set(0, 0, 0.5); scene.add(cool, cool.target); }
+  g.position.set(-RW / 2 + 0.26, 0, -2.6); clue('shelf', g, { pos: [-2.4, 1.7, -1.9], look: [-4.7, 1.5, -2.6] }); }
 // the case wall on the right
-{ const g = new THREE.Group(); box(2.6, 1.75, 0.06, M({ color: 0x3a2814 }), 0, 0, 0, g); const c = new THREE.Mesh(new THREE.PlaneGeometry(2.45, 1.6), M({ map: corkTex, roughness: 1 })); c.position.z = 0.04; g.add(c);
-  g.rotation.y = -Math.PI / 2; g.position.set(RW / 2 - 0.04, 2.15, -1.6); clue('board', g, { pos: [2.4, 2.1, -1.6], look: [5, 2.1, -1.6] }); }
-// armchairs: black leather and a red one, facing the fire
-function chair(color, x, z, ry) {
-  const g = new THREE.Group(); const m = M({ color, roughness: color === 0x141414 ? 0.35 : 0.9 }); box(0.95, 0.45, 0.9, m, 0, 0.32, 0, g); box(0.95, 0.85, 0.2, m, 0, 0.85, -0.38, g);
-  box(0.18, 0.35, 0.9, m, -0.48, 0.65, 0, g); box(0.18, 0.35, 0.9, m, 0.48, 0.65, 0, g); for (const [a, b] of [[-0.4, -0.35], [0.4, -0.35], [-0.4, 0.35], [0.4, 0.35]]) box(0.06, 0.1, 0.06, M({ color: 0x1a120a }), a, 0.05, b, g);
+{ const g = new THREE.Group(); box(2.4, 1.6, 0.06, M({ color: 0x3a2814 }), 0, 0, 0, g); const c = new THREE.Mesh(new THREE.PlaneGeometry(2.25, 1.47), M({ map: corkTex, roughness: 1 })); c.position.z = 0.04; g.add(c);
+  g.rotation.y = -Math.PI / 2; g.position.set(RW / 2 - 0.04, 2.15, -1.3); clue('board', g, { pos: [2.4, 2.1, -1.3], look: [5, 2.1, -1.3] }); }
+// armchairs: a black leather Chesterfield and a red wingback, both tufted
+function chair(color, x, z, ry, wing) {
+  const g = new THREE.Group(); const m = M({ color, roughness: color === 0x141414 ? 0.32 : 0.85, metalness: color === 0x141414 ? 0.15 : 0 }); const RB = (w, h, d, r, X, Y, Z) => { const o = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, r), m); o.position.set(X, Y, Z); o.castShadow = o.receiveShadow = true; g.add(o); return o; };
+  RB(1.0, 0.32, 0.9, 0.06, 0, 0.3, 0); RB(0.78, 0.14, 0.72, 0.06, 0, 0.5, 0.05);                         // base and seat cushion
+  RB(1.0, 0.95, 0.22, 0.08, 0, 0.88, -0.36);                                                             // back
+  for (const sx of [-1, 1]) { RB(0.18, 0.36, 0.86, 0.06, sx * 0.47, 0.6, 0.02); const roll = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.88, 20), m); roll.rotation.x = Math.PI / 2; roll.position.set(sx * 0.49, 0.8, 0.02); g.add(roll);
+    if (wing) RB(0.12, 0.55, 0.36, 0.05, sx * 0.46, 1.15, -0.22); }
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) { const b = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 6), M({ color: 0x050505, roughness: 0.4 })); b.position.set(-0.3 + c * 0.2 + (r % 2) * 0.1, 0.62 + r * 0.2, -0.245); g.add(b); }
+  for (const [a, b] of [[-0.42, -0.36], [0.42, -0.36], [-0.42, 0.36], [0.42, 0.36]]) { const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 0.16, 12), M({ color: 0x2a1a0c, roughness: 0.4 })); leg.position.set(a, 0.08, b); g.add(leg); }
   g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); return g;
 }
-chair(0x141414, -1.35, -1.2, 0.55); chair(0x7a1d1c, 1.35, -1.2, -0.55);
-// the violin, resting on the black chair
-{ const g = new THREE.Group(); const wood = M({ color: 0x8a3b12, roughness: 0.35, metalness: 0.05 });
-  const lower = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 16), wood); lower.scale.set(1, 0.32, 1.25); g.add(lower); const upper = new THREE.Mesh(new THREE.SphereGeometry(0.13, 24, 16), wood); upper.scale.set(1, 0.32, 1.2); upper.position.z = -0.27; g.add(upper);
-  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.34), M({ color: 0x111111, roughness: 0.4 })); neck.position.set(0, 0.03, -0.5); g.add(neck);
-  const scroll = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.012, 6, 12), wood); scroll.position.set(0, 0.04, -0.69); g.add(scroll);
-  const bow = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.75, 6), M({ color: 0x2a1a0a })); bow.rotation.set(Math.PI / 2, 0, 0.5); bow.position.set(0.12, 0.05, -0.2); g.add(bow);
-  g.position.set(-1.33, 0.6, -1.15); g.rotation.set(-0.15, 0.4, 0.1); clue('violin', g, { pos: [-0.6, 1.4, 0.2], look: [-1.33, 0.6, -1.15] }); }
+chair(0x141414, -1.35, -1.2, 0.55, false); chair(0x7a1d1c, 1.35, -1.2, -0.55, true);
+// the violin: a real outline, extruded and bevelled, with f-holes, fingerboard, strings, bridge, scroll and pegs, and its bow
+function violinShape(s) {
+  const pts = [[0, -0.36], [0.1, -0.34], [0.16, -0.27], [0.165, -0.17], [0.13, -0.1], [0.095, -0.05], [0.1, 0.02], [0.13, 0.07], [0.14, 0.15], [0.12, 0.22], [0.06, 0.26], [0, 0.265]];
+  const sh = new THREE.Shape(); sh.moveTo(0, pts[0][1] * s);
+  const right = pts.map(([x, y]) => new THREE.Vector2(x * s, y * s)); const left = pts.slice().reverse().map(([x, y]) => new THREE.Vector2(-x * s, y * s));
+  sh.splineThru(right.slice(1)); sh.splineThru(left.slice(1)); return sh;
+}
+const varnish = tex(256, 512, (g, w, h) => { const gr = g.createRadialGradient(w / 2, h * 0.55, 20, w / 2, h / 2, w); gr.addColorStop(0, '#c4641c'); gr.addColorStop(0.6, '#8a3a10'); gr.addColorStop(1, '#4a1a08'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 90; i++) { g.strokeStyle = `rgba(60,20,5,${0.08 + rnd() * 0.12})`; g.beginPath(); const x = rnd() * w; g.moveTo(x, 0); g.bezierCurveTo(x + 6, h / 3, x - 6, h * 2 / 3, x + 3, h); g.stroke(); } });
+{ const g = new THREE.Group(); const S = 1.0; const wood = M({ map: varnish, roughness: 0.28, metalness: 0.05 }); const ebony = M({ color: 0x0c0a08, roughness: 0.35 });
+  const geo = new THREE.ExtrudeGeometry(violinShape(S), { depth: 0.045, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.008, bevelSegments: 4, curveSegments: 48 });
+  geo.computeBoundingBox(); const bb = geo.boundingBox; const uv = geo.attributes.uv, pos = geo.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, (pos.getX(i) - bb.min.x) / (bb.max.x - bb.min.x), (pos.getY(i) - bb.min.y) / (bb.max.y - bb.min.y));
+  const body = new THREE.Mesh(geo, wood); body.castShadow = true; g.add(body); const top = 0.058;
+  for (const sx of [-1, 1]) { const f = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.004, 6, 16, Math.PI * 1.2), ebony); f.position.set(sx * 0.055, -0.07, top); f.rotation.z = sx > 0 ? 0.6 : 2.5; g.add(f); for (const dy of [-0.03, 0.03]) { const dot = new THREE.Mesh(new THREE.CircleGeometry(0.007, 10), ebony); dot.position.set(sx * 0.055 + (dy > 0 ? sx * 0.01 : -sx * 0.01), -0.07 + dy * 1.4, top + 0.001); g.add(dot); } }
+  const fb = new THREE.Mesh(new THREE.BoxGeometry(0.044, 0.012, 0.42), ebony); fb.rotation.x = -Math.PI / 2; fb.position.set(0, 0.14, top + 0.012); fb.scale.x = 1; g.add(fb);
+  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.2, 0.03), wood); neck.position.set(0, 0.36, top - 0.005); g.add(neck);
+  const peg = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.09, 0.04), wood); peg.position.set(0, 0.49, top - 0.005); g.add(peg);
+  const scroll = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.009, 8, 16), wood); scroll.rotation.y = Math.PI / 2; scroll.position.set(0, 0.55, top); g.add(scroll);
+  for (const k of [-1, 1]) for (const dy of [0.46, 0.51]) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.07, 8), ebony); p.rotation.z = Math.PI / 2; p.position.set(k * 0.03, dy, top - 0.005); g.add(p); }
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.006, 0.03), M({ color: 0xd8c39a })); bridge.rotation.x = -Math.PI / 2; bridge.position.set(0, -0.07, top + 0.016); g.add(bridge);
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.11, 0.008), ebony); tail.position.set(0, -0.25, top + 0.008); g.add(tail);
+  for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.0012, 0.72, 4), M({ color: 0xd8d8d0, metalness: 0.9, roughness: 0.2 })); s.position.set(-0.012 + i * 0.008, 0.11, top + 0.02); g.add(s); }
+  const chin = new THREE.Mesh(new THREE.SphereGeometry(0.04, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), ebony); chin.scale.set(1, 1, 0.4); chin.position.set(0.05, -0.3, top); chin.rotation.x = Math.PI / 2; g.add(chin);
+  const bow = new THREE.Group(); const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.005, 0.74, 8), M({ color: 0x3a1a08, roughness: 0.4 })); bow.add(stick);
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.68, 0.001), M({ color: 0xf2ece0, roughness: 0.9 })); hair.position.x = 0.014; bow.add(hair); const frog = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.016), ebony); frog.position.set(0.008, -0.33, 0); bow.add(frog);
+  bow.rotation.set(Math.PI / 2, 0, 0.9); bow.position.set(0.16, 0.0, 0.03); g.add(bow);
+  g.rotation.set(-Math.PI / 2 + 0.25, 0, 0.5); g.position.set(-1.3, 0.62, -1.1); g.scale.setScalar(0.95);
+  clue('violin', g, { pos: [-0.75, 1.35, 0.1], look: [-1.3, 0.62, -1.1] }); }
+// dust drifting through the lamplight
+const dust = (() => { const n = 260, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([(rnd() - 0.5) * 9, rnd() * 3.8, -3.8 + rnd() * 6], i * 3); const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(a, 3));
+  const p = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffe2b0, size: 0.018, transparent: true, opacity: 0.55, depthWrite: false })); scene.add(p); return p; })();
+// mind palace: the things she knows, floating in the room (toggle)
+const palace = new THREE.Group(); palace.visible = false; scene.add(palace);
+['GEOLOCATION', 'SHIP TRACKING', 'SATELLITE IMAGERY', 'SHELL COMPANIES', 'CHRONOLOCATION', 'FLIGHT TRACKING', 'DISINFORMATION', 'XINJIANG', 'SANCTIONS', 'C2PA', 'NETWORK MAPS', 'TIBETAN', '한국어', 'MCP AGENTS', 'VERIFICATION', 'DEFENCE'].forEach((w, i) => {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 96; const g = c.getContext('2d'); g.font = '500 54px "IBM Plex Mono", monospace'; g.fillStyle = i % 3 ? '#ffffff' : '#e3b45a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(w, 256, 48);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.85 })); s.scale.set(1.1, 0.2, 1);
+  s.userData = { a: (i / 16) * Math.PI * 2, r: 1.6 + (i % 4) * 0.55, y: 1.2 + (i % 5) * 0.45, sp: 0.06 + (i % 3) * 0.03 }; palace.add(s); });
 // side table with the newspaper
 box(0.6, 0.05, 0.6, M({ color: 0x2b211a, roughness: 0.4 }), 0, 0.55, -0.9); box(0.06, 0.55, 0.06, M({ color: 0x2b211a }), 0, 0.27, -0.9);
 { const g = new THREE.Group(); const p = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.35), M({ map: paperTex, side: THREE.DoubleSide })); p.rotation.x = -Math.PI / 2; g.add(p);
@@ -222,12 +282,18 @@ const ray = new THREE.Raycaster(); const mouse = new THREE.Vector2(9, 9); let ho
 function pick() { ray.setFromCamera(mouse, camera); const hit = ray.intersectObjects(Object.values(clues), true)[0]; if (!hit) return null; let o = hit.object; while (o && !o.userData.clue) o = o.parent; return o ? o.userData.clue : null; }
 function setGlow(key, on) { clues[key]?.traverse((o) => { if (o.isMesh && o.material.emissive) { o.material.emissive.setHex(on ? 0x3a2a10 : 0x000000); } }); }
 addEventListener('pointermove', (e) => {
-  mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); if (!started || current) return;
-  const k = pick(); canvas.style.cursor = k ? 'pointer' : 'default';
+  mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); const ln = $('lens'); document.body.classList.add('moved'); ln.style.left = e.clientX + 'px'; ln.style.top = e.clientY + 'px'; if (!started || current) return;
+  const k = pick(); $('lens').classList.toggle('hot', !!k);
   if (k !== hovered) { if (hovered) setGlow(hovered, false); hovered = k; if (k) { setGlow(k, true); deduce.innerHTML = CLUES[k].deduce.map((s, i) => `<span style="animation-delay:${i * 0.12}s">${s}</span>`).join(''); } deduce.classList.toggle('on', !!k); }
   if (k) { deduce.style.left = Math.min(e.clientX + 22, innerWidth - 300) + 'px'; deduce.style.top = (e.clientY - 10) + 'px'; }
 });
-canvas.addEventListener('click', () => { if (!started) return; const k = pick(); if (k) { deduce.classList.remove('on'); openClue(k); } else if (current) closeClue(); });
+function shootSmiley() {                      // the easter egg: one more bullet hole in the smiley, and the room flinches
+  ray.setFromCamera(mouse, camera); const h = ray.intersectObject(smiley)[0]; if (!h) return false;
+  const c = smileyTex.image.getContext('2d'), x = h.uv.x * 512, y = (1 - h.uv.y) * 512; c.fillStyle = '#0b0b0b'; c.beginPath(); c.arc(x, y, 10, 0, 7); c.fill(); c.strokeStyle = 'rgba(0,0,0,.5)'; c.lineWidth = 2; for (let k = 0; k < 6; k++) { c.beginPath(); c.moveTo(x, y); c.lineTo(x + (Math.random() - .5) * 46, y + (Math.random() - .5) * 46); c.stroke(); }
+  smileyTex.needsUpdate = true; flash = 0.6; shake = 0.25; deduce.innerHTML = '<span>Bored.</span>'; deduce.classList.add('on'); setTimeout(() => deduce.classList.remove('on'), 1200); return true;
+}
+let shake = 0;
+canvas.addEventListener('click', () => { if (!started) return; if (!current && shootSmiley()) return; const k = pick(); if (k) { deduce.classList.remove('on'); openClue(k); } else if (current) closeClue(); });
 
 function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 68 : 50; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
@@ -235,12 +301,16 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; const clo
 function loop(now) {
   const t = (now - t0) / 1000;
   const par = (!current && started) ? 0.18 : 0; const target = goal.pos.clone().add(new THREE.Vector3(mouse.x * par * (Math.abs(mouse.x) < 2 ? 1 : 0), mouse.y * par * 0.5 * (Math.abs(mouse.y) < 2 ? 1 : 0), 0));
-  const k = reduce ? 1 : 0.06; cam.pos.lerp(target, k); cam.look.lerp(goal.look, k); camera.position.copy(cam.pos); camera.lookAt(cam.look);
+  const k = reduce ? 1 : 0.06; cam.pos.lerp(target, k); cam.look.lerp(goal.look, k); camera.position.copy(cam.pos); if (shake > 0.01) { camera.position.x += (Math.random() - .5) * shake * 0.2; camera.position.y += (Math.random() - .5) * shake * 0.2; shake *= 0.85; } camera.lookAt(cam.look);
   if (!started && !reduce) { camera.position.x += Math.sin(t * 0.25) * 0.4; camera.lookAt(cam.look); }
-  fireLight.intensity = 5 + Math.sin(t * 9) * 0.6 + Math.sin(t * 23) * 0.4; flames.forEach((f, i) => { f.scale.y = 0.8 + 0.3 * Math.sin(t * (6 + i) + i); });
+  fireLight.intensity = 5 + Math.sin(t * 9) * 0.6 + Math.sin(t * 23) * 0.4;
+  winGroup.userData.rain.material.map.offset.y = (t * 0.35) % 1;
+  if (!reduce && Math.random() < 0.0025) flash = 1; flash *= 0.9; skyMat.color.setScalar(1 + flash * 2.5); coolLight.intensity = 3 + flash * 25;
+  const dp = dust.geometry.attributes.position; for (let i = 0; i < dp.count; i++) { let y = dp.getY(i) - 0.0015; if (y < 0) y = 3.8; dp.setY(i, y); dp.setX(i, dp.getX(i) + Math.sin(t + i) * 0.0008); } dp.needsUpdate = true;
+  if (palace.visible) palace.children.forEach((sp) => { const u = sp.userData; u.a += u.sp * 0.016; sp.position.set(Math.cos(u.a) * u.r, u.y + Math.sin(t * 0.6 + u.r) * 0.08, -1.2 + Math.sin(u.a) * u.r * 0.7); }); flames.forEach((f, i) => { f.scale.y = 0.8 + 0.3 * Math.sin(t * (6 + i) + i); });
   renderer.render(scene, camera); requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 // deep links: ?enter skips the title card; ?clue=<key> opens one object (handy for sharing a single section)
-{ const q = new URLSearchParams(location.search); if (q.has('enter') || q.has('clue')) { $('intro').style.display = 'none'; started = true; cam.pos.copy(goal.pos); }
+{ const q = new URLSearchParams(location.search); if (q.has('enter') || q.has('clue')) { $('intro').style.display = 'none'; started = true; document.body.classList.add('entered'); cam.pos.copy(goal.pos); }
   if (q.has('still')) document.documentElement.classList.add('still'); if (q.get('clue') && CLUES[q.get('clue')]) { openClue(q.get('clue')); if (q.has('still')) { cam.pos.copy(goal.pos); cam.look.copy(goal.look); } } }

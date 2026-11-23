@@ -848,3 +848,10 @@ html[data-theme="light"] .panel--cases.is-locked::before {
     padding-inline: 16px;
   }
 }
+
+/* link to the 3D Baker Street version */
+.palace-link { display: block; margin: 18px 0 6px; padding: 14px 18px; border: 1px solid rgba(227, 180, 90, 0.55); border-radius: 10px; text-decoration: none; background: linear-gradient(120deg, rgba(227, 180, 90, 0.10), rgba(127, 211, 200, 0.06)); transition: transform 0.2s, border-color 0.2s; max-width: 460px; }
+.palace-link:hover, .palace-link:focus-visible { transform: translateY(-2px); border-color: #e3b45a; }
+.palace-kicker { display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #e3b45a; }
+.palace-title { display: block; font-weight: 700; font-size: 19px; margin: 4px 0 2px; color: inherit; }
+.palace-sub { display: block; font-size: 14px; opacity: 0.75; color: inherit; }
