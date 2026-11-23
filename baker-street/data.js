@@ -33,8 +33,8 @@ export const CLUES = {
   shelf: {
     title: "The Casebook", deduce: ["Spines worn, dates in order", "Newsrooms: four", "Habit: keeps receipts"],
     html: `<ol class="timeline">
-      <li><time>Mar – Aug 2026</time><b>NWS Facts · Contributing OSINT Reporter</b><span>Cross-border investigations combining vessel tracking, corporate registries and satellite imagery.</span></li>
       <li><time>Jan 2025 – now</time><b>OSINT JOURNO · Chief Investigation Officer</b><span>Independent OSINT outlet on China, defence, surveillance infrastructure and privacy: long-form explainers, investigations and video.</span></li>
+      <li><time>Mar – Aug 2026</time><b>NWS Facts · Contributing OSINT Reporter</b><span>Cross-border investigations combining vessel tracking, corporate registries and satellite imagery.</span></li>
       <li><time>Oct 2023 – Mar 2024</time><b>Centre for Information Resilience · Network Member</b><span>Tracked coordinated influence operations and state-linked propaganda.</span></li>
       <li><time>Aug 2022 – Nov 2023</time><b>India Today · OSINT Reporter</b><span>Open-source investigations on China, conflict zones and information operations. Chairman's Award for Team Excellence 2023.</span></li>
       <li><time>May – Jul 2022</time><b>Hacktoria · Lead Editor (volunteer)</b><span>Maritime OSINT explainer later cited in GIJN's ship-tracking resources.</span></li>
