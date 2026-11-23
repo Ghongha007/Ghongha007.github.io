@@ -125,9 +125,15 @@ const certTex = tex(400, 300, (g, w, h) => {
   g.fillStyle = '#3a2a18'; g.textAlign = 'center'; g.font = 'italic 22px Georgia'; g.fillText('Master of Arts', w / 2, 92); g.font = 'bold 17px Georgia'; g.fillText('International Relations,', w / 2, 140); g.fillText('Security & Strategy', w / 2, 164);
   g.font = '14px Georgia'; g.fillText('O.P. Jindal Global University', w / 2, 210); g.fillStyle = '#a32'; g.beginPath(); g.arc(w - 70, h - 62, 22, 0, Math.PI * 2); g.fill();
 });
-const screenTex = tex(512, 320, (g, w, h) => {
-  g.fillStyle = '#0b1210'; g.fillRect(0, 0, w, h); g.font = '18px monospace'; g.fillStyle = '#7fd3c8';
-  ['$ gh repo list Ghongha007', 'aitrace       verify-mcp', 'chat2net      groundline', 'osint-skills  india-osint', 'china-osint   russia-osint', '$ _'].forEach((l, i) => g.fillText(l, 22, 40 + i * 42));
+const screenTex = tex(1024, 640, (g, w, h) => {
+  const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, '#16212a'); bg.addColorStop(1, '#0a0f13'); g.fillStyle = bg; g.fillRect(0, 0, w, h);
+  g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 0, w, 26); g.fillStyle = '#c9d1d3'; g.font = '15px Inter, sans-serif'; g.fillText('Terminal', 14, 18); g.textAlign = 'right'; g.fillText('22:14', w - 14, 18); g.textAlign = 'left';
+  g.fillStyle = '#0b1210'; g.fillRect(48, 56, w - 96, h - 104); g.fillStyle = '#20282c'; g.fillRect(48, 56, w - 96, 30);
+  [['#ff5f57', 70], ['#febc2e', 92], ['#28c840', 114]].forEach(([c, x]) => { g.fillStyle = c; g.beginPath(); g.arc(x, 71, 7, 0, 7); g.fill(); });
+  g.fillStyle = '#9aa3a8'; g.font = '15px monospace'; g.textAlign = 'center'; g.fillText('dipti@221b: ~/osint', w / 2, 76); g.textAlign = 'left';
+  g.font = '30px monospace'; g.fillStyle = '#7fd3c8';
+  ['$ gh repo list Ghongha007', 'aitrace       verify-mcp', 'chat2net      groundline', 'osint-skills  india-osint', 'china-osint   russia-osint', '$ _'].forEach((l, i) => g.fillText(l, 76, 132 + i * 66));
+  g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, h - 34, w, 34); ['#e3b45a', '#7fd3c8', '#c5463a', '#9aa3a8'].forEach((c, i) => { g.fillStyle = c; g.fillRect(w / 2 - 70 + i * 36, h - 28, 24, 22); });
 });
 
 // ---------------------------------------------------------------- scene
@@ -292,10 +298,52 @@ box(0.6, 0.05, 0.6, M({ color: 0x2b211a, roughness: 0.4 }), 0, 0.55, -0.9); box(
   g.position.set(0, 0.585, -0.9); g.rotation.y = 0.25; clue('newspaper', g, { pos: [0.1, 1.35, 0.1], look: [0, 0.58, -0.9] }); }
 // desk and laptop, front right
 box(1.6, 0.06, 0.8, M({ color: 0x3a2716, roughness: 0.45 }), 3.2, 0.78, 0.8); for (const [a, b] of [[2.5, 0.5], [3.9, 0.5], [2.5, 1.1], [3.9, 1.1]]) box(0.06, 0.78, 0.06, M({ color: 0x2b1c10 }), a, 0.39, b);
-{ const g = new THREE.Group(); box(0.6, 0.03, 0.42, M({ color: 0x9aa0a6, metalness: 0.6, roughness: 0.3 }), 0, 0, 0, g);
-  const lid = new THREE.Group(); box(0.6, 0.4, 0.02, M({ color: 0x9aa0a6, metalness: 0.6, roughness: 0.3 }), 0, 0.2, 0, lid); const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.54, 0.34), new THREE.MeshBasicMaterial({ map: screenTex })); scr.position.set(0, 0.2, 0.012); lid.add(scr);
-  lid.position.z = -0.2; lid.rotation.x = -0.25; g.add(lid); g.position.set(3.1, 0.83, 0.8); g.rotation.y = -0.5; clue('laptop', g, { pos: [2.3, 1.45, 1.8], look: [3.1, 0.95, 0.8] });
-  const glow = new THREE.PointLight(0x7fd3c8, 0.8, 2.2); glow.position.set(2.9, 1.1, 1.0); scene.add(glow); }
+{ // a laptop built part by part: rounded aluminium shell, recessed keyboard with real key layout, trackpad, speaker grilles, hinge, bezel, webcam
+  const g = new THREE.Group();
+  const alu = M({ color: 0x8d939a, metalness: 0.75, roughness: 0.32 }), aluDark = M({ color: 0x6f757c, metalness: 0.7, roughness: 0.4 });
+  const rb = (w, h, d, r, mat, x, y, z, parent) => { const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, r), mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m; };
+  // base shell (top surface at y = 0.011) and rubber feet
+  rb(0.6, 0.022, 0.42, 0.009, alu, 0, 0, 0, g);
+  for (const [fx, fz] of [[-0.25, -0.17], [0.25, -0.17], [-0.25, 0.17], [0.25, 0.17]]) { const ft = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.004, 16), M({ color: 0x111111, roughness: 0.9 })); ft.position.set(fx, -0.012, fz); g.add(ft); }
+  // thumb notch, drawn as a shadowed groove on the front edge
+  const notch = new THREE.Mesh(new THREE.PlaneGeometry(0.09, 0.007), new THREE.MeshBasicMaterial({ color: 0x3a3e43 })); notch.position.set(0, 0.006, 0.2102); g.add(notch);
+  // recessed keyboard well
+  const well = new THREE.Mesh(new THREE.PlaneGeometry(0.515, 0.2), new THREE.MeshBasicMaterial({ color: 0x0c0d0f })); well.rotation.x = -Math.PI / 2; well.position.set(0, 0.0112, -0.095); g.add(well);
+  // keys: an instanced mesh laid out like a real keyboard (function row, number row, QWERTY, home, shift, space row)
+  const U = 0.5 / 14.5, GAP = 0.0042, rows = [
+    { z: -0.183, d: 0.015, w: Array(14).fill(14.5 / 14) },
+    { z: -0.155, d: 0.027, w: [...Array(13).fill(1), 1.5] },
+    { z: -0.124, d: 0.027, w: [1.5, ...Array(12).fill(1), 1] },
+    { z: -0.093, d: 0.027, w: [1.75, ...Array(11).fill(1), 1.75] },
+    { z: -0.062, d: 0.027, w: [2.25, ...Array(10).fill(1), 2.25] },
+    { z: -0.031, d: 0.027, w: [1, 1, 1.25, 1.25, 5, 1.25, 1.25, 1, 1.5] }];
+  const keys = []; rows.forEach((r) => { let x = -0.25; r.w.forEach((u) => { const w = u * U; keys.push([x + w / 2, r.z, w - GAP, r.d]); x += w; }); });
+  const keyMat = M({ color: 0x1b1c1f, roughness: 0.55 }), kGeo = new RoundedBoxGeometry(1, 1, 1, 2, 0.12);
+  const km = new THREE.InstancedMesh(kGeo, keyMat, keys.length), mtx = new THREE.Matrix4();
+  keys.forEach(([x, z, w, d], i) => { mtx.compose(new THREE.Vector3(x, 0.0145, z), new THREE.Quaternion(), new THREE.Vector3(w, 0.005, d)); km.setMatrixAt(i, mtx); });
+  km.castShadow = true; g.add(km);
+  // faint key legends and keyboard backlight, drawn once on a texture laid just above the keys
+  const legend = tex(1024, 420, (c, w, h) => { c.clearRect(0, 0, w, h); c.fillStyle = 'rgba(190,225,220,0.55)'; c.font = '600 15px Inter, sans-serif'; c.textAlign = 'center';
+    const L = ['', '1234567890-=⌫', '⇥QWERTYUIOP[]', 'ASDFGHJKL;\'', 'ZXCVBNM,./', '']; const sx = (x) => (x + 0.2575) / 0.515 * w, sz = (z) => (z + 0.195) / 0.2 * h; let k = 0;
+    rows.forEach((r, ri) => { r.w.forEach((u, ci) => { const [x, z] = keys[k++]; const ch = ri === 3 ? L[3][ci - 1] : ri === 4 ? L[4][ci - 1] : ri === 2 ? L[2][ci] : ri === 1 ? L[1][ci] : ''; if (ch) c.fillText(ch, sx(x), sz(z) + 5); }); }); });
+  const lg = new THREE.Mesh(new THREE.PlaneGeometry(0.515, 0.2), new THREE.MeshBasicMaterial({ map: legend, transparent: true, depthWrite: false })); lg.rotation.x = -Math.PI / 2; lg.position.set(0, 0.0172, -0.095); g.add(lg);
+  // trackpad: a slightly darker glass panel with a thin chamfer
+  rb(0.17, 0.002, 0.1, 0.0009, M({ color: 0x7c8289, metalness: 0.5, roughness: 0.22 }), 0, 0.0115, 0.105, g);
+  // speaker grilles either side of the keyboard
+  const grille = tex(64, 400, (c, w, h) => { c.fillStyle = '#7f858c'; c.fillRect(0, 0, w, h); c.fillStyle = '#2a2c30'; for (let yy = 8; yy < h; yy += 12) for (let xx = 8; xx < w; xx += 12) { c.beginPath(); c.arc(xx + ((yy / 12) % 2) * 5, yy, 2.4, 0, 7); c.fill(); } });
+  for (const sx of [-0.278, 0.278]) { const gr = new THREE.Mesh(new THREE.PlaneGeometry(0.026, 0.19), M({ map: grille, metalness: 0.5, roughness: 0.45 })); gr.rotation.x = -Math.PI / 2; gr.position.set(sx, 0.0113, -0.095); g.add(gr); }
+  // hinge barrel along the back edge
+  const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.0095, 0.0095, 0.46, 20), aluDark); hinge.rotation.z = Math.PI / 2; hinge.position.set(0, 0.006, -0.205); g.add(hinge);
+  // lid: shell, black glass bezel, screen, webcam, and a status LED on the deck
+  const lid = new THREE.Group(); rb(0.6, 0.4, 0.012, 0.009, alu, 0, 0.2, 0, lid);
+  const bezel = new THREE.Mesh(new THREE.PlaneGeometry(0.585, 0.388), M({ color: 0x050607, roughness: 0.15, metalness: 0.3 })); bezel.position.set(0, 0.2, 0.0062); lid.add(bezel);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.344), new THREE.MeshBasicMaterial({ map: screenTex })); scr.position.set(0, 0.206, 0.0066); lid.add(scr);
+  const cam = new THREE.Mesh(new THREE.CircleGeometry(0.0035, 16), new THREE.MeshBasicMaterial({ color: 0x1d2a30 })); cam.position.set(0, 0.389, 0.0066); lid.add(cam);
+  const camRing = new THREE.Mesh(new THREE.RingGeometry(0.0035, 0.0048, 16), new THREE.MeshBasicMaterial({ color: 0x2c3237 })); camRing.position.set(0.0, 0.389, 0.0065); lid.add(camRing);
+  const led = new THREE.Mesh(new THREE.CircleGeometry(0.0022, 12), new THREE.MeshBasicMaterial({ color: 0x9fffe8 })); led.rotation.x = -Math.PI / 2; led.position.set(0.012, 0.0114, -0.198); g.add(led);
+  lid.position.set(0, 0.006, -0.205); lid.rotation.x = -0.25; g.add(lid);
+  g.position.set(3.1, 0.822, 0.8); g.rotation.y = -0.5; clue('laptop', g, { pos: [2.3, 1.45, 1.8], look: [3.1, 0.95, 0.8] });
+  const glow = new THREE.PointLight(0x7fd3c8, 0.5, 2.2); glow.position.set(2.9, 1.1, 1.0); scene.add(glow); }
 { const lamp = new THREE.Group(); box(0.04, 1.6, 0.04, M({ color: 0x1a1a1a, metalness: 0.6 }), 0, 0.8, 0, lamp); const shade = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.32, 24, 1, true), M({ color: 0xc9a46a, side: THREE.DoubleSide, emissive: 0x6a4a20, emissiveIntensity: 0.6 })); shade.position.y = 1.7; lamp.add(shade);
   lamp.position.set(4.2, 0, 0.2); scene.add(lamp); const l = new THREE.PointLight(0xffc98a, 2.2, 6, 1.5); l.position.set(4.2, 1.6, 0.2); l.castShadow = true; scene.add(l); }
 scene.add(new THREE.HemisphereLight(0x8090b0, 0x2a1a10, 0.75));
