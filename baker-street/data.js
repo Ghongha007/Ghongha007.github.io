@@ -75,7 +75,7 @@ export const CLUES = {
     title: "The Window", deduce: ["Rain on Baker Street", "Lamp still lit", "Taking new cases"],
     html: `<p class="lede">For editors, producers and collaborators.</p>
       <p>Email: <a href="mailto:dydiptiyadav07@gmail.com">dydiptiyadav07@gmail.com</a><br>Signal: <span class="mono">@Ghongha007.15</span></p>
-      <p class="links"><a href="https://in.linkedin.com/in/dydiptiyadav07" target="_blank" rel="noopener">LinkedIn</a><a href="https://x.com/Ghongha007" target="_blank" rel="noopener">X</a><a href="https://github.com/Ghongha007" target="_blank" rel="noopener">GitHub</a></p>
+      <p class="links"><a href="https://in.linkedin.com/in/dydiptiyadav07" target="_blank" rel="noopener">LinkedIn</a><a href="https://x.com/Ghongha007" target="_blank" rel="noopener">X</a><a href="https://github.com/Ghongha007" target="_blank" rel="noopener">GitHub</a><a href="https://huggingface.co/Ghongha007" target="_blank" rel="noopener">Hugging Face</a></p>
       <h4>OSINT JOURNO</h4><p class="links"><a href="https://www.osintjourno.com/" target="_blank" rel="noopener">Website</a><a href="https://www.instagram.com/osint_journo/" target="_blank" rel="noopener">Instagram</a><a href="https://osintjourno.substack.com" target="_blank" rel="noopener">Substack</a><a href="https://www.linkedin.com/company/osint-journo" target="_blank" rel="noopener">LinkedIn</a></p>`,
   },
 };
