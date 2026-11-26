@@ -40,6 +40,13 @@ export const CLUES = {
       <li><time>May – Jul 2022</time><b>Hacktoria · Lead Editor (volunteer)</b><span>Maritime OSINT explainer later cited in GIJN's ship-tracking resources.</span></li>
       <li><time>Mar – May 2022</time><b>DFRLab · Digital Sherlock Scholar</b><span>Advanced OSINT, network mapping and verification.</span></li></ol>`,
   },
+  playbill: {
+    title: "The Playbill", deduce: ["Pinned with brass tacks", "Admission: free", "Ten stalls, one case"],
+    html: `<p class="lede">OSINT Expo: a free 3D expo I built for learning open-source investigation.</p>
+      <img class="shot" src="img/expo-hall.jpg" alt="Inside OSINT Expo: the green carpet leading to the Main Hall, with a timeline of investigations on the left">
+      <p>Walk around in your browser, no download or account. Each of ten stalls teaches one skill in about two minutes and quizzes you for a passport stamp. Try a hands-on lab, solve a 20 to 30 minute case, crack CTFs in the Main Hall or join a live talk.</p>
+      <p class="links"><a class="btn" href="https://expo.osintjourno.com" target="_blank" rel="noopener">Play OSINT Expo →</a><a href="https://github.com/OSINT-JOURNO/osint-expo" target="_blank" rel="noopener">What's inside</a></p>`,
+  },
   frame: {
     title: "The Certificate", deduce: ["Frame: new, still straight", "Subject: still studying", "Field: security & strategy"],
     html: `<p class="lede">MA in International Relations, Security &amp; Strategy (MA-IRSS)</p><p>O.P. Jindal Global University · Oct 2026 – Sept 2027</p>
@@ -49,6 +56,8 @@ export const CLUES = {
     title: "The Laptop", deduce: ["Screen still warm", "Repos: open source", "Workflow: AI, checked by hand"],
     html: `<p>Open-source tools built for journalists and researchers, and the AI workflow behind them.</p>
       <p><a class="btn" href="https://github.com/Ghongha007" target="_blank" rel="noopener">github.com/Ghongha007 →</a></p>
+      <h4>Repos</h4><ul class="tags"><li><a href="https://github.com/Ghongha007/osint-visuals" target="_blank" rel="noopener">osint-visuals</a></li><li><a href="https://github.com/Ghongha007/osint-skills" target="_blank" rel="noopener">osint-skills</a></li><li><a href="https://github.com/Ghongha007/verify-mcp" target="_blank" rel="noopener">verify-mcp</a></li><li><a href="https://github.com/Ghongha007/groundline" target="_blank" rel="noopener">groundline</a></li><li><a href="https://github.com/Ghongha007/aitrace" target="_blank" rel="noopener">aitrace</a></li><li><a href="https://github.com/Ghongha007/chat2net" target="_blank" rel="noopener">chat2net</a></li><li><a href="https://github.com/OSINT-JOURNO/china-state-vessels" target="_blank" rel="noopener">china-state-vessels</a></li><li><a href="https://github.com/Ghongha007/ai-for-osint" target="_blank" rel="noopener">ai-for-osint</a></li></ul>
+      <p>Plus country guides to public records for <a href="https://github.com/Ghongha007/india-osint" target="_blank" rel="noopener">India</a>, <a href="https://github.com/Ghongha007/china-osint" target="_blank" rel="noopener">China</a>, <a href="https://github.com/Ghongha007/usa-osint" target="_blank" rel="noopener">the US</a>, <a href="https://github.com/Ghongha007/russia-osint" target="_blank" rel="noopener">Russia</a>, <a href="https://github.com/Ghongha007/ukraine-osint" target="_blank" rel="noopener">Ukraine</a> and <a href="https://github.com/Ghongha007/uk-osint" target="_blank" rel="noopener">the UK</a>.</p>
       <h4>Toolbox</h4><ul class="tags"><li>Geolocation &amp; satellite analysis</li><li>Video &amp; image verification</li><li>Network &amp; influence mapping</li><li>Data scraping &amp; visualisation</li><li>Explainer graphic design</li></ul>
       <h4>AI in the workflow</h4><ul class="tags"><li>Agentic AI workflows</li><li>Prompt engineering</li><li>Human-in-the-loop verification</li><li>AI output fact-checking</li><li>AI-assisted data analysis</li><li>AI-assisted video production</li><li>Generative AI image &amp; video</li><li>MCP servers &amp; agent skills</li><li>Synthetic media provenance (C2PA)</li><li>Responsible AI use</li></ul>`,
   },
@@ -67,6 +76,6 @@ export const CLUES = {
     html: `<p class="lede">For editors, producers and collaborators.</p>
       <p>Email: <a href="mailto:dydiptiyadav07@gmail.com">dydiptiyadav07@gmail.com</a><br>Signal: <span class="mono">@Ghongha007.15</span></p>
       <p class="links"><a href="https://in.linkedin.com/in/dydiptiyadav07" target="_blank" rel="noopener">LinkedIn</a><a href="https://x.com/Ghongha007" target="_blank" rel="noopener">X</a><a href="https://github.com/Ghongha007" target="_blank" rel="noopener">GitHub</a></p>
-      <h4>OSINT JOURNO</h4><p class="links"><a href="https://www.osintjourno.com/" target="_blank" rel="noopener">Website</a><a href="https://www.instagram.com/osint_journo/" target="_blank" rel="noopener">Instagram</a><a href="https://medium.com/osint-journo" target="_blank" rel="noopener">Medium</a><a href="https://www.linkedin.com/company/osint-journo" target="_blank" rel="noopener">LinkedIn</a></p>`,
+      <h4>OSINT JOURNO</h4><p class="links"><a href="https://www.osintjourno.com/" target="_blank" rel="noopener">Website</a><a href="https://www.instagram.com/osint_journo/" target="_blank" rel="noopener">Instagram</a><a href="https://osintjourno.substack.com" target="_blank" rel="noopener">Substack</a><a href="https://www.linkedin.com/company/osint-journo" target="_blank" rel="noopener">LinkedIn</a></p>`,
   },
 };

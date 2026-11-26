@@ -1,13 +1,13 @@
 // The study at 221B, built entirely in code (no model files): every clickable object opens one part of the portfolio.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
-import { PERSON, CLUES } from './data.js?v=6';
+import { PERSON, CLUES } from './data.js?v=7';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('room');
 let renderer;
 try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); } catch (e) { renderer = null; }
-const ORDER = ['violin', 'shelf', 'board', 'laptop', 'frame', 'skull', 'newspaper', 'window'];
+const ORDER = ['violin', 'shelf', 'board', 'laptop', 'playbill', 'frame', 'skull', 'newspaper', 'window'];
 
 // ---------------------------------------------------------------- UI: intro, panel, index, lock
 const lines = ['You have come about a case.'];
@@ -157,7 +157,7 @@ const screenTex = tex(1024, 640, (g, w, h) => {
   [['#ff5f57', 70], ['#febc2e', 92], ['#28c840', 114]].forEach(([c, x]) => { g.fillStyle = c; g.beginPath(); g.arc(x, 71, 7, 0, 7); g.fill(); });
   g.fillStyle = '#9aa3a8'; g.font = '15px monospace'; g.textAlign = 'center'; g.fillText('dipti@221b: ~/osint', w / 2, 76); g.textAlign = 'left';
   g.font = '30px monospace'; g.fillStyle = '#7fd3c8';
-  ['$ gh repo list Ghongha007', 'aitrace       verify-mcp', 'chat2net      groundline', 'osint-skills  india-osint', 'china-osint   russia-osint', '$ _'].forEach((l, i) => g.fillText(l, 76, 132 + i * 66));
+  ['$ gh repo list Ghongha007', 'osint-visuals  osint-skills', 'verify-mcp     groundline', 'aitrace        chat2net', 'india-osint    china-osint', '$ _'].forEach((l, i) => g.fillText(l, 76, 132 + i * 66));
   g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(0, h - 34, w, 34); ['#e3b45a', '#7fd3c8', '#c5463a', '#9aa3a8'].forEach((c, i) => { g.fillStyle = c; g.fillRect(w / 2 - 70 + i * 36, h - 28, 24, 22); });
 });
 
@@ -315,6 +315,27 @@ let flash = 0; const skyMat = new THREE.MeshBasicMaterial({ map: nightTex, color
   const mat = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.55), M({ color: 0xe9e1cc, roughness: 0.9 })); mat.position.z = 0.012; g.add(mat);
   const p = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.44), M({ map: certTex })); p.position.z = 0.016; g.add(p);
   const gl = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.55), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.06, roughness: 0.05, metalness: 0.5 })); gl.position.z = 0.028; g.add(gl); g.rotation.y = -Math.PI / 2; g.position.set(RW / 2 - 0.04, 2.25, -3.35); clue('frame', g, { pos: [3.0, 2.2, -3.0], look: [5, 2.2, -3.35] }); }
+// a Victorian playbill for OSINT Expo, pinned to the back wall between the smiley and the certificate
+const playbillTex = tex(420, 600, (g, w, h) => {
+  const bg = g.createLinearGradient(0, 0, w, h); bg.addColorStop(0, '#efe3c4'); bg.addColorStop(1, '#d9c79c'); g.fillStyle = bg; g.fillRect(0, 0, w, h);   // aged paper
+  g.fillStyle = 'rgba(120,85,40,.10)'; for (let i = 0; i < 70; i++) { g.beginPath(); g.arc((i * 97) % w, (i * 173) % h, 2 + (i % 5) * 3, 0, 7); g.fill(); }   // foxing
+  g.strokeStyle = '#3a2a18'; g.lineWidth = 4; g.strokeRect(16, 16, w - 32, h - 32); g.lineWidth = 1.5; g.strokeRect(26, 26, w - 52, h - 52);
+  const c = (txt, y, font, col = '#2a1c10') => { g.font = font; g.fillStyle = col; g.textAlign = 'center'; g.fillText(txt, w / 2, y); };
+  const rule = (y) => { g.fillStyle = '#3a2a18'; g.fillRect(70, y, w - 140, 2); };
+  c('NOW OPEN', 70, 'bold 20px Georgia'); rule(84);
+  c('A GRAND EXHIBITION OF', 118, 'italic 19px Georgia');
+  c('OSINT', 196, 'bold 82px Georgia'); c('EXPO', 274, 'bold 82px Georgia', '#8a2a1e');
+  c('open-source investigation', 312, 'italic 20px Georgia'); rule(330);
+  c('TEN STALLS · HANDS-ON LABS', 368, 'bold 17px Georgia'); c('A CASE TO SOLVE · CTFs', 396, 'bold 17px Georgia'); c('LIVE TALKS IN THE MAIN HALL', 424, 'bold 17px Georgia');
+  g.fillStyle = '#8a2a1e'; g.fillRect(64, 450, w - 128, 50); c('ADMISSION FREE', 485, 'bold 26px Georgia', '#f3e6c8');
+  c('expo.osintjourno.com', 548, '17px Georgia');
+});
+{ const g = new THREE.Group();
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.8), M({ map: playbillTex, roughness: 0.95 })); paper.castShadow = true; g.add(paper);
+  const brassT = M({ color: 0x9a7436, metalness: 0.8, roughness: 0.35 });
+  for (const [x, y] of [[-0.24, 0.36], [0.24, 0.36], [-0.24, -0.36], [0.24, -0.36]]) { const t = new THREE.Mesh(new THREE.SphereGeometry(0.011, 12, 8), brassT); t.position.set(x, y, 0.006); g.add(t); }
+  g.rotation.z = -0.025; g.position.set(4.2, 2.05, -RD / 2 + 0.025); clue('playbill', g, { pos: [3.2, 2.0, -2.1], look: [4.2, 2.0, -4] }); }
+
 // bookcase on the left wall: a mahogany case with five shelves of real books, some leaning, some stacked, and a globe on top
 { const g = new THREE.Group(); const oak = M({ color: 0x2a1c12, roughness: 0.5 }), oakD = M({ color: 0x1a110b, roughness: 0.6 });
   box(0.03, 2.8, 2.2, oakD, -0.235, 1.4, 0, g);
